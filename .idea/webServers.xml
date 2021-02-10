@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="d91675f3-b82a-4196-9db3-90124138c1ed" name="AmazonAWS@mikesims.ddns.net" url="http://mikesims.ddns.net">
+        <fileTransfer rootFolder="/var/www/html" accessType="SFTP" host="mikesims.ddns.net" port="22" sshConfigId="1ec27bfb-1489-49f0-b359-6c08fc32453b" sshConfig="ubuntu@mikesims.ddns.net:22 key" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
