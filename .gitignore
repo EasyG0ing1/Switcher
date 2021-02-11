@@ -1,0 +1,6 @@
+# Don't commit built classes
+target
+
+# Don't commit IntelliJ config
+*.iml
+.idea

@@ -1,4 +1,4 @@
-package com.simtechdata;
+package com.simtechdata.switcher;
 
 
 import javafx.application.Platform;
@@ -121,7 +121,7 @@ public class Switcher {
 	 * use hasHistoryProperty to bind to the controls visibleProperty or
 	 * use noHistoryProperty to bind to the controls disableProperty if
 	 * you just want the control to be disabled if there is no history
-	 * @return
+	 * @return true if Switcher has scene history
 	 */
 	public static BooleanProperty getHasHistoryProperty() {
 		return hasHistoryProperty;
@@ -236,7 +236,7 @@ public class Switcher {
 		/**
 		 * Get the scene that is currently showing
 		 * to change properties etc.
-		 * @return
+		 * @return the currently showing Scene
 		 */
 		public Scene scene()            {return scene;}
 
@@ -250,7 +250,7 @@ public class Switcher {
 
 		/**
 		 * With these two settings, you can position the stage anywhere on the screen
-		 * @param stageX
+		 * @param stageX The Stage's x-position
 		 */
 		public void setStageX(double stageX) {this.stageX = stageX;}
 
