@@ -1,6 +1,6 @@
 package com.simtechdata.switcher.common;
 
-import com.simtechdata.switcher.Switcher;
+import com.simtechdata.Switcher;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

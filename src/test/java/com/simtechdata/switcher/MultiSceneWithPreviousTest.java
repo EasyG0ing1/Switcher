@@ -1,5 +1,6 @@
 package com.simtechdata.switcher;
 
+import com.simtechdata.Switcher;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -126,7 +127,7 @@ public class MultiSceneWithPreviousTest extends Application {
 		// history to show, your control is either hidden
 		// or disabled.
 		//button.visibleProperty().bind(Switcher.getHasHistoryProperty());
-		button.disableProperty().bind(Switcher.getNoHistoryProperty());
+		button.disableProperty().bind(Switcher.getEnabledWithHistoryProperty());
 
 		return button;
 	}
