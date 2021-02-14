@@ -6,12 +6,12 @@
 
     <groupId>com.simtechdata</groupId>
     <artifactId>Switcher</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
     <description>Easily switch between JavaFX scenes with one line of code.</description>
-    <url>https://github.com/EasyG0ing1/Switcher</url>
+    <url>https://github.com/Ea`syG0ing1/Switcher</url>
 
     <licenses>
         <license>
