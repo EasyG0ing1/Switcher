@@ -52,10 +52,10 @@ public class Switcher {
 	 * Switcher.addScene(C.SCENE_ONE, anchorPane, width, height);
 	 * Switcher.showScene(C.SCENE_ONE);
 	 * </pre>
-	 * @param sceneID Integer
-	 * @param root Parent
-	 * @param width double
-	 * @param height double
+	 * @param sceneID a unique Integer that you provide and maintain in your code
+	 * @param root a Parent such as an AnchorPane or a VBox - it is the foundation of the Stage
+	 * @param width double - sets the stage width for this scene.
+	 * @param height double - sets the stage height for this scene
 	 */
 	public static void addScene(Integer sceneID, Parent root, double width, double height) {
 		addSceneFinally(root, width, height, sceneID, null, null);
@@ -75,7 +75,7 @@ public class Switcher {
 
 	/**
 	 * Use removeScene to take a sceneID out of Switcher if needed.
-	 * @param sceneID Integer
+	 * @param sceneID a unique Integer
 	 */
 	public static void removeScene(Integer sceneID) {
 		if (sceneObjectMap.containsKey(sceneID)) sceneObjectMap.remove(sceneID);
@@ -90,27 +90,27 @@ public class Switcher {
 	 * <a href="https://github.com/dustinkredmond/FXTrayIcon" target="_blank">
 	 *     FXTrayIcon library, written by Dustin Redmond</a>
 	 *
-	 * @param hideOnLostFocus boolean
+	 * @param hideOnLostFocus set {@code true} to enable
 	 */
 	public static void setHideSceneOnLostFocus(boolean hideOnLostFocus) {Switcher.hideStageOnLostFocusProperty.setValue(hideOnLostFocus);}
 
 	/**
 	 * Call sceneHiddenOnLostFocus to find out if Switcher is configured to
 	 * hide the scene when the stage looses focus.
-	 * @return boolean
+	 * @return boolean if true, then this option is enabled
 	 */
 	public static boolean sceneHiddenOnLostFocus()                      {return Switcher.hideStageOnLostFocusProperty.getValue();}
 
 	/**
 	 * Use setSceneVisible and pass <strong>true</strong> into the argument to show the scene
 	 * if it is currently hidden, or pass <strong>false</strong> to hide the scene if desired.
-	 * @param visible boolean
+	 * @param visible set true to un hide the scene, or false to hide it
 	 */
 	public static void setSceneVisible(boolean visible)                 {Switcher.stageVisibleProperty.setValue(visible);}
 
 	/**
 	 * Use sceneVisible to find out if the scene is currently showing on the screen
-	 * @return boolean
+	 * @return boolean - if true, then Stage is currently being shown on screen
 	 */
 	public static boolean sceneVisible()                                {return Switcher.stageVisibleProperty.getValue();}
 
@@ -200,7 +200,7 @@ public class Switcher {
 	 * if you did not define those parameters in the addScene method.<BR><BR>
 	 * <strong>X, Y, width and height will persist in subsequent calls to showScene
 	 * without the need to pass those parameters again.</strong>
-	 * @param sceneID Integer
+	 * @param sceneID a unique Integer - each scene needs a unique sceneID
 	 */
 	public static void showScene(Integer sceneID) {
 		if (sceneObjectMap.containsKey(sceneID)) showSceneObject(sceneID, true);
