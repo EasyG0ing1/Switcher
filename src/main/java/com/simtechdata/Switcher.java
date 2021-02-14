@@ -316,7 +316,7 @@ public class Switcher {
 		final Modality   stageModality = sceneObject.stageModality();
 		stage.setScene(scene);
 		Platform.runLater(() -> {
-			stage.show();
+			stage.hide();
 			Rectangle2D  screenBounds = Screen.getPrimary().getVisualBounds();
 			double       screenWidth  = screenBounds.getWidth();
 			double       screenHeight = screenBounds.getHeight();
@@ -326,6 +326,7 @@ public class Switcher {
 			if (stageModality != null) stage.initModality(stageModality);
 			sceneObject.setStageX(finalX);
 			sceneObject.setStageY(finalY);
+			stage.show();
 			stage.toFront();
 			stage.requestFocus();
 		});
