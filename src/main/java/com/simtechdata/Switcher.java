@@ -14,6 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Switcher is a library that makes managing your scenes literally one line of code easy!
+ * It all starts with the addScene() method.
+ */
 public class Switcher {
 
 	private static final BooleanProperty           stageVisibleProperty         = new SimpleBooleanProperty(true);
