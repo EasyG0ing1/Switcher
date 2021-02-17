@@ -227,6 +227,22 @@ public class Switcher {
 	}
 
 	/**
+	 * Use getScene to gain access to the Scene that Switcher creates
+	 * so that you can make changes to it as needed
+	 * @param sceneID the sceneID of the scene you want
+	 * @return Will return null if the sceneID does not exist
+	 */
+	public static Scene getScene(Integer sceneID) {
+		if (sceneObjectMap.containsKey(sceneID)) {
+			return sceneObjectMap.get(sceneID).getScene();
+		}
+		else {
+			warnNoScene("getScene",sceneID);
+			return null;
+		}
+	}
+
+	/**
 	 * When this is set to true, the stage will automatically
 	 * hide itself when the user clicks anywhere else on their
 	 * screen other than this getScene. Useful in pop style
