@@ -30,7 +30,6 @@ public class Switcher {
 	private static       boolean                   started                      = false;
 	private static final HistoryKeeper             history                      = new HistoryKeeper();
 	private static       Stage                     stage;
-	private static Integer                         showingSceneID;
 	private static Integer coreStageID = getRandom();
 
 
@@ -275,17 +274,6 @@ public class Switcher {
 	public static boolean sceneVisible()                                {return Switcher.stageVisibleProperty.getValue();}
 
 	/**
-	 * This will take the new values that were set using
-	 * <strong>setX, setY, setWidth and setHeight</strong> and place the
-	 * stage using the new values
-	 */
-	public static void refresh() {
-		if (showingSceneID != null && sceneObjectMap.containsKey(showingSceneID)) {
-			showSceneObject(showingSceneID,false);
-		}
-	}
-
-	/**
 	 * showScene is used to display any of the scenes that
 	 * have been added to Switcher using the addScene method.<BR><BR>
 	 * Simply put the <strong>sceneID</strong> into the argument (sceneID is an
@@ -401,7 +389,6 @@ public class Switcher {
 		}
 		visibleWithHistoryProperty.setValue(history.hasHistory());
 		enabledWithHistoryProperty.setValue(!history.hasHistory());
-		showingSceneID = sceneID;
 		stage.hide();
 		stage = (sceneObject.getStageID() == null) ? stageMap.get(coreStageID) : stageMap.get(sceneObject.getStageID());
 		final Scene   scene       = sceneObject.getScene();
