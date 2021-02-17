@@ -1,21 +1,24 @@
 # Switcher
 
 Library intended for use in JavaFX applications that makes adding and switching Scenes easy.
-The Switcher class can be used to quickly add Scenes to your project, and offers easy to 
-use methods to switch out scenes on the fly without all the messy code that goes along
+The Switcher library can be used to quickly add Scenes to your project, and offers a single 
+line of code method to switch out scenes on the fly without all the messy code that goes along
 with managing Scenes in JavaFX. You simply assign a unique sceneID (int) to your scene,
 and Switcher takes care of the rest!
 
-Check out the [runnable test application](./src/test/java/com/simtechdata/switcher/MultiSceneWithPreviousTest.java) in the test directory for an example of how Switcher works.
+There are also three [completely runnable test applications](./src/test/) under Test that
+show how to use Switcher from the most common and simple ways to the Lets Get Nuts ways 
+which allow you to even utilize different stages and assign them to your scenes and 
+then with grace and style, you just show the scene with a single and simple line of code.
 
 ---
 
 ## Usage
 
-From within your JavaFX application, You simply need to define a sceneID number, then
-add it to Switcher with the Parent, and the width and height of the Scene (with optional
-parameters) and it's ready to use! You do not need to ever worry about managing the
-Stage, as Switcher handles that for you!
+From within your JavaFX application, You simply add the scene to switcher by supplying a
+sceneID, Parent, width and height and it's ready to use! You do not need to ever worry
+about managing the Stage, as Switcher handles that for you! But if you need to also
+use different stages, we got you covered there as well!
 
 ```java
 int sceneID = 1;
@@ -41,7 +44,7 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>Switcher</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -107,33 +110,90 @@ Switcher.showScene(sceneID, stageX, stageY);
 Switcher.showScene(sceneID, width, height, stageX, stageY);
 ```
 
-### Style and Modality
+## Advanced Features
 
-You can set the style of the stage or its modality when you add the scene to Switcher.
+### Custom Stages
+
+You can include with each Scene, a different stage to show the Scene on. This can be handy
+if you need different stages with different StageStyles or Modality's. Just like with Scenes,
+you need to provide a stageID for each different Stage that you want to assign to a given Scene.
+The most basic way to do this is like this:
 
 ```java
-Switcher.addScene(sceneID, parent, width, height, Modality.WINDOW_MODAL, StageStyle.TRANSPARENT);
-Switcher.addScene(sceneID, parent, width, height, Modality.WINDOW_MODAL);
-Switcher.addScene(sceneID, parent, width, height, StageStyle.TRANSPARENT);
+Switcher.addScene(sceneID, stageID, Parent, width, height);
+Switcher.addScene(sceneID, stageID, Parent, width, height, StageStyle);
+Switcher.addScene(sceneID, stageID, Parent, width, height, Modality);
+Switcher.addScene(sceneID, stageID, Parent, width, height, StageStyle, Modality);
 ```
 
-These are just some of the ways you can define the scene when you add it to Switcher. Check your 
-IDEs code completion for a complete list of options. 
+Optionally, you can build your stage before hand, then add it to Switcher like this:
 
-### Removing A Scene
+```java
+Switcher.addStage(stageID, Stage);
+```
+
+Then you simply add Scenes and reference the stageID in the add method
+
+```java
+Switcher.addScene(sceneID, stageID, Parent, width, height);
+```
+
+Or you can later assign a Stage to a scene after you've already added the Scene
+
+```java
+Switcher.assignSceneToStage(sceneID, stageID);
+```
+
+Note: The StageStyle and Modality CANNOT be modified once the stage has been shown.
+Therefore, it is necessary to set up your stages before showing your scenes.
+
+### Removing A Scene or a Stage
 
 If you need to, you can also remove a scene from Switcher.
 
 ```java
 Switcher.removeScene(sceneID);
+Switcher.removeStage(stageID);
 ```
 
-###  Example Programs
-Check the Test folder for some example applications that use Switcher. I added CommonUsage.java 
-to show you how I typically use Switcher. This project was an evolution of sorts over time. 
-I wrote it to make this process easy and CommonUsage will show you how I typically use this library.
-The other test app, MultiSceneWithPreviousTest, will demonstrate how to switch between three different
-scenes, and also use the showLastScene() method.
+If you remove a stage that has been assigned to one or more scenes, Switcher will
+remove that stage assignment from those connected Scenes and will default them back
+to the default Stage.
+
+### Default Stage Configuration
+
+If you're just going to use the default stage that Switcher creates when you just add
+a scene using the basic addScene method call, you can optionally configure that default
+stages StageStyle and Modality, but this must be done before ever calling showScene.
+
+```java
+Switcher.configureDefaultStage(StageStyle, Modality);
+```
+
+If you only want to set one of those two options, then simply pass null into the other
+one, and it will use the default that Java assigns.
+
+```java
+Switcher.configureDefaultStage(StageStyle, null);
+```
+
+### What about the stages OnCloseRequest?
+
+I'm glad you asked, because you can gain access to any of the stages, including the 
+default stage so that you can assign the setOnCloseRequest method.
+
+```java
+Switcher.getStage(stageID).setOnCloseRequest(e-> closeApp());
+Switcher.getDefaultStage().setOnCloseRequest(e-> closeApp());
+```
+
+##  Example Programs
+In the test folder are three completely runnable programs. You simple run the Main method
+from any of the packages to see examples of different ways to use Switcher. Also, in the
+Main class, I have included useful comments that explains everything relevant to that 
+packages implementation style. 
+
+Check out the **Lets Get Nuts** package for the most versatile way of working with Switcher.
 
 ## Supported operating systems
 

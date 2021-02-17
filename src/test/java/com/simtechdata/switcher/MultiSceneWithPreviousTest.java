@@ -10,7 +10,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -92,7 +94,9 @@ public class MultiSceneWithPreviousTest extends Application {
 		Switcher.addScene(SCENE_TWO, vboxMap.get(SCENE_TWO),width,height);
 		Switcher.addScene(SCENE_THREE, vboxMap.get(SCENE_THREE),width,height);
 		Switcher.showScene(SCENE_ONE);
-		Switcher.getStage().setOnCloseRequest(e-> System.exit(0));
+		Switcher.getDefaultStage().setOnCloseRequest(e-> System.exit(0));
+		new Stage().initStyle(StageStyle.TRANSPARENT);
+		new Stage().initModality(Modality.WINDOW_MODAL);
 	}
 
 	private void loadPics() {
@@ -123,7 +127,7 @@ public class MultiSceneWithPreviousTest extends Application {
 
 		// It is important to bind one of these properties to
 		// whichever control you are going to use to engage
-		// the showPrevious() scene so that when there is no
+		// the showPrevious() getScene so that when there is no
 		// history to show, your control is either hidden
 		// or disabled.
 		//button.visibleProperty().bind(Switcher.getHasHistoryProperty());
