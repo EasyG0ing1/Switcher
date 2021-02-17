@@ -288,13 +288,36 @@ public class Switcher {
 
 	/**
 	 * showScene by providing its sceneID and optional X and Y coordinates
+	 * of the Stage upper left corner as well as the desired width and height
+	 * of the Stage. X, Y, width and height settings will persist in
+	 * subsequent calls to showScene without the need to pass those parameters again.
+	 * @param sceneID Integer
+	 * @param width double
+	 * @param height double
+	 * @param stageX double
+	 * @param stageY double
+	 */
+	public static void showScene(Integer sceneID, double width, double height, double stageX, double stageY) {
+		if (sceneObjectMap.containsKey(sceneID)) {
+			SceneObject sceneObject = sceneObjectMap.get(sceneID);
+			sceneObject.setStageWidth(width);
+			sceneObject.setStageHeight(height);
+			sceneObject.setStageX(stageX);
+			sceneObject.setStageY(stageY);
+			showSceneObject(sceneID,true);
+		}
+		else warnNoScene("showScene",sceneID);
+	}
+
+	/**
+	 * showSceneWithPosition by providing its sceneID and optional X and Y coordinates
 	 * of the Stage upper left corner. X and Y parameters will persist
-	 * in subsequent calls to showScene without the need to pass those parameters.
+	 * in subsequent calls to showScene without the need to pass those parameters again.
 	 * @param sceneID Integer
 	 * @param stageX double
 	 * @param stageY double
 	 */
-	public static void showScene(Integer sceneID, double stageX, double stageY) {
+	public static void showSceneWithPosition(Integer sceneID, double stageX, double stageY) {
 		if (stageX < 0 || stageY < 0) System.err.println("Values for X and Y in showScene must not be negative");
 		else {
 			if (sceneObjectMap.containsKey(sceneID)) {
@@ -309,23 +332,18 @@ public class Switcher {
 	}
 
 	/**
-	 * showScene by providing its sceneID and optional X and Y coordinates
-	 * of the Stage upper left corner as well as the desired width and height
-	 * of the Stage. X, Y, width and height settings will persist in
-	 * subsequent calls to showScene without the need to pass those parameters.
+	 * showSceneWithSize by providing its sceneID and optional width and height
+	 * values. There settings will persist in subsequent calls to showScene without
+	 * the need to pass those parameters again.
 	 * @param sceneID Integer
 	 * @param width double
 	 * @param height double
-	 * @param stageX double
-	 * @param stageY double
 	 */
-	public static void showScene(Integer sceneID, double width, double height, double stageX, double stageY) {
+	public static void showSceneWithSize(Integer sceneID, double width, double height) {
 		if (sceneObjectMap.containsKey(sceneID)) {
 			SceneObject sceneObject = sceneObjectMap.get(sceneID);
 			sceneObject.setStageWidth(width);
 			sceneObject.setStageHeight(height);
-			sceneObject.setStageX(stageX);
-			sceneObject.setStageY(stageY);
 			showSceneObject(sceneID,true);
 		}
 		else warnNoScene("showScene",sceneID);

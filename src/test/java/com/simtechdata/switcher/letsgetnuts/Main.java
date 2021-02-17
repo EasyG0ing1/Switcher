@@ -44,7 +44,7 @@ public class Main extends Application {
 		 * see that subsequent calls to show that scene will maintain that anchor point.
 		 * Change out the scene that is first displayed to see this in action fully.
 		 */
-		Switcher.showScene(C.SECOND_SCENE, 100, 200);
+		Switcher.showSceneWithPosition(C.SECOND_SCENE, 100, 200);
 	}
 
 

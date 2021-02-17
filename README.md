@@ -100,14 +100,19 @@ Switcher.sceneHiddenOnLostFocus();
 ```
 
 ### Size and Position
-By default, Switcher will always show the scene in the center of the screen. However, you
-can decide where the scene is placed by selecting the X and Y coordinates of the upper left
-corner of the scene when you show the scene, OR, you can even change the width and height
-that you set when you added the scene.
+By default, Switcher will always show the scene in the center of the screen. Even if the user
+changes the screen resolution, each call to showScene will re-calculate the correct position.<BR>
+You can alternatively decide where the scene is placed by setting the X and Y coordinates of the upper left
+corner of the stage when you show the scene. You can even change the width and height of the scene that 
+you originally set when you added the scene.<BR>
+These setting will persist with subsequent calls to showScene for that sceneID without needing to 
+pass these values again.
 
 ```java
 Switcher.showScene(sceneID, stageX, stageY);
 Switcher.showScene(sceneID, width, height, stageX, stageY);
+Switcher.showSceneWithSize(sceneID, width, height);
+Switcher.showSceneWithPosition(sceneID, stageX, stageY);
 ```
 
 ## Advanced Features
