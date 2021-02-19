@@ -26,12 +26,13 @@ public class Switcher {
 	private static final BooleanProperty           visibleWithHistoryProperty   = new SimpleBooleanProperty();
 	private static final BooleanProperty           enabledWithHistoryProperty   = new SimpleBooleanProperty();
 	private static final Map<Integer, SceneObject> sceneObjectMap               = new HashMap<>();
-	private static final Map<Integer, Stage> 	   stageMap               		= new HashMap<>();
+	private static final Map<Integer, Stage>       stageMap               		= new HashMap<>();
 	private static       boolean                   started                      = false;
 	private static final HistoryKeeper             history                      = new HistoryKeeper();
 	private static       Stage                     stage;
-	private static Integer coreStageID = getRandom();
-
+	private static Integer                         coreStageID = getRandom();
+	private static Integer                         showingSceneID;
+	private static Integer                         lastSceneIDShowing;
 
 	/**
 	 * The addScene method is the first step to using Switcher. You maintain
@@ -168,7 +169,7 @@ public class Switcher {
 			stageMap.remove(stageID);
 			for (Integer sid : sceneObjectMap.keySet()) {
 				SceneObject so = sceneObjectMap.get(sid);
-				if (so.getStageID() == stageID) {
+				if (so.getStageID().equals(stageID)) {
 					so.setStageID(null);
 					sceneObjectMap.replace(sid,so);
 				}
@@ -221,8 +222,7 @@ public class Switcher {
 	 * @return default Stage or null if you have not added any scenes.
 	 */
 	public static Stage getDefaultStage() {
-		if (stageMap.containsKey(coreStageID)) return stageMap.get(coreStageID);
-		else return null;
+		return stageMap.getOrDefault(coreStageID, null);
 	}
 
 	/**
@@ -265,13 +265,20 @@ public class Switcher {
 	 * if it is currently hidden, or pass <strong>false</strong> to hide the getScene if desired.
 	 * @param visible set true to un hide the getScene, or false to hide it
 	 */
-	public static void setSceneVisible(boolean visible)                 {Switcher.stageVisibleProperty.setValue(visible);}
+	public static void setSceneVisible(boolean visible) {
+		if (visible) showingSceneID = lastSceneIDShowing;
+		else {
+			lastSceneIDShowing = showingSceneID;
+			showingSceneID = null;
+		}
+		Switcher.stageVisibleProperty.setValue(visible);
+	}
 
 	/**
 	 * Use sceneVisible to find out if the getScene is currently showing on the screen
 	 * @return boolean - if true, then Stage is currently being shown on screen
 	 */
-	public static boolean sceneVisible()                                {return Switcher.stageVisibleProperty.getValue();}
+	public static boolean sceneVisible() {return Switcher.stageVisibleProperty.getValue();}
 
 	/**
 	 * showScene is used to display any of the scenes that
@@ -354,6 +361,18 @@ public class Switcher {
 	}
 
 	/**
+	 * use isShowing to find out if a particular scene is the one current being displayed on
+	 * the screen. This is different than using visible, since it will tell you if a specific
+	 * Scene is on the screen and not just whether the stage is visible or not.
+	 * @param sceneID unique ID Integer
+	 * @return true if showing, false if not
+	 */
+	public static boolean isShowing(Integer sceneID) {
+		if (showingSceneID == null) return false;
+		else return sceneID.equals(showingSceneID);
+	}
+
+	/**
 	 * Use getVisibleWithHistoryProperty to bind to a control that invokes the showLastScene method.
 	 * For example: myButton.visibleProperty.bind(Switcher.getVisibleWithHistoryProperty());
 	 * Your control will then be hidden when Switcher has no more scenes in its history to pull up.
@@ -383,6 +402,7 @@ public class Switcher {
 	}
 
 	private static void showSceneObject(Integer sceneID, boolean showingNewScene) {
+		showingSceneID = sceneID;
 		SceneObject sceneObject = sceneObjectMap.get(sceneID);
 		if (showingNewScene) {
 			history.showingNewScene(sceneID);
@@ -450,7 +470,7 @@ public class Switcher {
 	private static void getNewRandom(Integer duplicateInteger) {
 		int min = 1000000;
 		int max = 9999999;
-		while (coreStageID == duplicateInteger) {
+		while (coreStageID.equals(duplicateInteger)) {
 			coreStageID = ThreadLocalRandom.current().nextInt(min, max + 1);
 		}
 	}
@@ -470,7 +490,7 @@ public class Switcher {
 	}
 
 	private static void checkStageID(Integer stageID) {
-		if (stageID == coreStageID) {
+		if (stageID.equals(coreStageID)) {
 			getNewRandom(stageID);
 			stageMap.put(coreStageID,stageMap.get(stageID));
 			stageMap.remove(stageID);
