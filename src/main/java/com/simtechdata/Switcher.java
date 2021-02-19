@@ -266,7 +266,9 @@ public class Switcher {
 	 * @param visible set true to un hide the getScene, or false to hide it
 	 */
 	public static void setSceneVisible(boolean visible) {
-		if (visible) showingSceneID = lastSceneIDShowing;
+		if (visible) {
+			if (showingSceneID == null) showingSceneID = lastSceneIDShowing;
+		}
 		else {
 			lastSceneIDShowing = showingSceneID;
 			showingSceneID = null;
