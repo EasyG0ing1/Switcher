@@ -3,6 +3,9 @@ package com.simtechdata;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -11,7 +14,6 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.lang.management.PlatformManagedObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -23,18 +25,19 @@ import java.util.concurrent.TimeUnit;
  */
 public class Switcher {
 
-	private static final BooleanProperty           stageVisibleProperty         = new SimpleBooleanProperty(true);
-	private static final BooleanProperty           hideStageOnLostFocusProperty = new SimpleBooleanProperty();
-	private static final BooleanProperty           visibleWithHistoryProperty   = new SimpleBooleanProperty();
-	private static final BooleanProperty           enabledWithHistoryProperty   = new SimpleBooleanProperty();
-	private static final Map<Integer, SceneObject> sceneObjectMap               = new HashMap<>();
-	private static final Map<Integer, Stage>       stageMap               		= new HashMap<>();
-	private static       boolean                   started                      = false;
-	private static final HistoryKeeper             history                      = new HistoryKeeper();
-	private static       Stage                     stage;
-	private static Integer                         coreStageID = getRandom();
-	private static Integer                         showingSceneID;
-	private static Integer                         lastSceneIDShowing;
+	private static final BooleanProperty                   stageVisibleProperty         = new SimpleBooleanProperty(true);
+	private static final BooleanProperty                   hideStageOnLostFocusProperty = new SimpleBooleanProperty();
+	private static final BooleanProperty                   visibleWithHistoryProperty   = new SimpleBooleanProperty();
+	private static final BooleanProperty                   enabledWithHistoryProperty   = new SimpleBooleanProperty();
+	private static final Map<Integer, SceneObject>         sceneObjectMap               = new HashMap<>();
+	private static final Map<Integer, Stage>               stageMap               		= new HashMap<>();
+	private static final Map<Integer, EventHandler<Event>> sceneShownMap                = new HashMap<>();
+	private static       boolean                           started                      = false;
+	private static final HistoryKeeper                     history                      = new HistoryKeeper();
+	private static       Stage                             stage;
+	private static Integer                                 coreStageID = getRandom();
+	private static Integer                                 showingSceneID;
+	private static Integer                                 lastSceneIDShowing;
 
 	/**
 	 * The addScene method is the first step to using Switcher. You maintain
@@ -298,8 +301,12 @@ public class Switcher {
 	 */
 	public static void showScene(Integer sceneID) {
 		Platform.runLater(()->{
-			if (sceneObjectMap.containsKey(sceneID)) showSceneObject(sceneID, true);
-			else warnNoScene("showScene",sceneID);
+			if (sceneObjectMap.containsKey(sceneID)) {
+				showSceneObject(sceneID, true);
+				if (sceneShownMap.containsKey(sceneID)) sceneShownMap.get(sceneID).handle(new ActionEvent());
+			} else {
+				warnNoScene("showScene",sceneID);
+			}
 		});
 	}
 
@@ -323,6 +330,8 @@ public class Switcher {
 				sceneObject.setStageX(stageX);
 				sceneObject.setStageY(stageY);
 				showSceneObject(sceneID,true);
+
+				if (sceneShownMap.containsKey(sceneID)) sceneShownMap.get(sceneID).handle(new ActionEvent());
 			}
 			else warnNoScene("showScene",sceneID);
 		});
@@ -346,6 +355,8 @@ public class Switcher {
 					so.setStageY(stageY);
 					so.setCustomXY(true);
 					showSceneObject(sceneID,true);
+
+					if (sceneShownMap.containsKey(sceneID)) sceneShownMap.get(sceneID).handle(new ActionEvent());
 				}
 				else warnNoScene("showScene",sceneID);
 			}
@@ -367,6 +378,8 @@ public class Switcher {
 				sceneObject.setStageWidth(width);
 				sceneObject.setStageHeight(height);
 				showSceneObject(sceneID,true);
+
+				if (sceneShownMap.containsKey(sceneID)) sceneShownMap.get(sceneID).handle(new ActionEvent());
 			}
 			else warnNoScene("showScene",sceneID);
 		});
@@ -412,7 +425,21 @@ public class Switcher {
 			Integer lastSceneID = history.getLastSceneID();
 			System.out.println("LastSceneID: " + lastSceneID);
 			showSceneObject(lastSceneID,false);
+
+			if (sceneShownMap.containsKey(lastSceneID)) sceneShownMap.get(lastSceneID).handle(new ActionEvent());
 		});
+	}
+
+	/**
+	 * Registers an {@code EventHandler} on a Scene managed by Switcher.
+	 * When Switcher shows this scene, the {@code EventHandler} will be executed.
+	 * @param sceneId ID of a Scene managed by Switcher
+	 * @param handler {@code EventHandler} to be invoked when Scene is shown
+	 */
+	public static void setOnShown(Integer sceneId, EventHandler<Event> handler) {
+		if (sceneObjectMap.containsKey(sceneId)) {
+			sceneShownMap.put(sceneId, handler);
+		}
 	}
 
 	private static void showSceneObject(Integer sceneID, boolean showingNewScene) {
@@ -445,6 +472,7 @@ public class Switcher {
 			stage.show();
 			stage.toFront();
 			stage.requestFocus();
+
 		});
 	}
 
