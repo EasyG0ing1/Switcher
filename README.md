@@ -1,14 +1,14 @@
 # Switcher
 
 Library intended for use in JavaFX applications that makes adding and switching Scenes easy.
-The Switcher library can be used to quickly add Scenes to your project, and offers a single 
+The Switcher library can be used to quickly add Scenes to your project, and offers a single
 line of code method to switch out scenes on the fly without all the messy code that goes along
 with managing Scenes in JavaFX. You simply assign a unique sceneID (int) to your scene,
 and Switcher takes care of the rest!
 
 There are also three [completely runnable test applications](./src/test/) under Test that
-show how to use Switcher from the most common and simple ways to the Lets Get Nuts ways 
-which allow you to even utilize different stages and assign them to your scenes and 
+show how to use Switcher from the most common and simple ways to the Lets Get Nuts ways
+which allow you to even utilize different stages and assign them to your scenes and
 then with grace and style, you just show the scene with a single and simple line of code.
 
 ---
@@ -32,7 +32,7 @@ Switcher.showScene(sceneID);
 ```
 
 And the rest is handled for you! Even if your scenes have different dimensions,
-Switcher will properly handle the Stage to accommodate the scenes settings. 
+Switcher will properly handle the Stage to accommodate the scenes settings.
 
 ---
 
@@ -44,7 +44,7 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>Switcher</artifactId>
-    <version>1.1.5</version>
+    <version>1.1.6</version>
 </dependency>
 ```
 
@@ -55,8 +55,8 @@ Switcher has more features, making it even more useful in your applications. For
 
 ### History
 Switcher maintains a history of scenes as you show them. This will let you implement a control
-such as a Button, to just go back to the last shown Scene. You can continue going back to the 
-first scene that you brought up. The proper way to engage this feature, is to create your 
+such as a Button, to just go back to the last shown Scene. You can continue going back to the
+first scene that you brought up. The proper way to engage this feature, is to create your
 control that will invoke showLastScene(). Because invoking the last scene will do nothing
 when you are at the first scene shown, Switcher offers to different BooleanProperties that
 you can bind to your controls visibleProperty or enabledProperty. Here is how you would set it up.
@@ -77,7 +77,7 @@ button.visibleProperty().bind(Switcher.getHasHistoryProperty());
 
 ### Hiding on lost focus
 
-With some application styles, it might be useful to automatically hide the scene when the user has 
+With some application styles, it might be useful to automatically hide the scene when the user has
 clicked off of it and onto some other window or program on their computer. You can enable a
 thread that monitors for lost focus on the stage and when it loses focus, it hides itself.
 
@@ -103,9 +103,9 @@ Switcher.sceneHiddenOnLostFocus();
 By default, Switcher will always show the scene in the center of the screen. Even if the user
 changes the screen resolution, each call to showScene will re-calculate the correct position.<BR>
 You can alternatively decide where the scene is placed by setting the X and Y coordinates of the upper left
-corner of the stage when you show the scene. You can even change the width and height of the scene that 
+corner of the stage when you show the scene. You can even change the width and height of the scene that
 you originally set when you added the scene.<BR>
-These setting will persist with subsequent calls to showScene for that sceneID without needing to 
+These setting will persist with subsequent calls to showScene for that sceneID without needing to
 pass these values again.
 
 ```java
@@ -114,6 +114,22 @@ Switcher.showScene(sceneID, width, height, stageX, stageY);
 Switcher.showSceneWithSize(sceneID, width, height);
 Switcher.showSceneWithPosition(sceneID, stageX, stageY);
 ```
+
+### Is it currently showing?
+This method tells you if a specific sceneID is currently being shown on the screen.
+```java
+Switcher.isShowing(sceneID);
+```
+
+## Trigger Methods
+You can now assign an event to a scene, so that when you call showScene, that event will trigger.
+```java
+Switcher.setOnShown(C.FORM_THREE, e->{
+	myCode();
+});
+```
+
+
 
 ## Advanced Features
 
@@ -184,7 +200,7 @@ Switcher.configureDefaultStage(StageStyle, null);
 
 ### What about the stages OnCloseRequest?
 
-I'm glad you asked, because you can gain access to any of the stages, including the 
+I'm glad you asked, because you can gain access to any of the stages, including the
 default stage so that you can assign the setOnCloseRequest method.
 
 ```java
@@ -195,8 +211,8 @@ Switcher.getDefaultStage().setOnCloseRequest(e-> closeApp());
 ##  Example Programs
 In the test folder are three completely runnable programs. You simple run the Main method
 from any of the packages to see examples of different ways to use Switcher. Also, in the
-Main class, I have included useful comments that explains everything relevant to that 
-packages implementation style. 
+Main class, I have included useful comments that explains everything relevant to that
+packages implementation style.
 
 Check out the **Lets Get Nuts** package for the most versatile way of working with Switcher.
 
