@@ -10,6 +10,8 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+import java.lang.management.PlatformManagedObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -295,8 +297,10 @@ public class Switcher {
 	 * @param sceneID a unique Integer - each getScene needs a unique sceneID
 	 */
 	public static void showScene(Integer sceneID) {
-		if (sceneObjectMap.containsKey(sceneID)) showSceneObject(sceneID, true);
-		else warnNoScene("showScene",sceneID);
+		Platform.runLater(()->{
+			if (sceneObjectMap.containsKey(sceneID)) showSceneObject(sceneID, true);
+			else warnNoScene("showScene",sceneID);
+		});
 	}
 
 	/**
@@ -311,15 +315,17 @@ public class Switcher {
 	 * @param stageY double
 	 */
 	public static void showScene(Integer sceneID, double width, double height, double stageX, double stageY) {
-		if (sceneObjectMap.containsKey(sceneID)) {
-			SceneObject sceneObject = sceneObjectMap.get(sceneID);
-			sceneObject.setStageWidth(width);
-			sceneObject.setStageHeight(height);
-			sceneObject.setStageX(stageX);
-			sceneObject.setStageY(stageY);
-			showSceneObject(sceneID,true);
-		}
-		else warnNoScene("showScene",sceneID);
+		Platform.runLater(()->{
+			if (sceneObjectMap.containsKey(sceneID)) {
+				SceneObject sceneObject = sceneObjectMap.get(sceneID);
+				sceneObject.setStageWidth(width);
+				sceneObject.setStageHeight(height);
+				sceneObject.setStageX(stageX);
+				sceneObject.setStageY(stageY);
+				showSceneObject(sceneID,true);
+			}
+			else warnNoScene("showScene",sceneID);
+		});
 	}
 
 	/**
@@ -331,17 +337,19 @@ public class Switcher {
 	 * @param stageY double
 	 */
 	public static void showSceneWithPosition(Integer sceneID, double stageX, double stageY) {
-		if (stageX < 0 || stageY < 0) System.err.println("Values for X and Y in showScene must not be negative");
-		else {
-			if (sceneObjectMap.containsKey(sceneID)) {
-				SceneObject so = sceneObjectMap.get(sceneID);
-				so.setStageX(stageX);
-				so.setStageY(stageY);
-				so.setCustomXY(true);
-				showSceneObject(sceneID,true);
+		Platform.runLater(()->{
+			if (stageX < 0 || stageY < 0) System.err.println("Values for X and Y in showScene must not be negative");
+			else {
+				if (sceneObjectMap.containsKey(sceneID)) {
+					SceneObject so = sceneObjectMap.get(sceneID);
+					so.setStageX(stageX);
+					so.setStageY(stageY);
+					so.setCustomXY(true);
+					showSceneObject(sceneID,true);
+				}
+				else warnNoScene("showScene",sceneID);
 			}
-			else warnNoScene("showScene",sceneID);
-		}
+		});
 	}
 
 	/**
@@ -353,13 +361,15 @@ public class Switcher {
 	 * @param height double
 	 */
 	public static void showSceneWithSize(Integer sceneID, double width, double height) {
-		if (sceneObjectMap.containsKey(sceneID)) {
-			SceneObject sceneObject = sceneObjectMap.get(sceneID);
-			sceneObject.setStageWidth(width);
-			sceneObject.setStageHeight(height);
-			showSceneObject(sceneID,true);
-		}
-		else warnNoScene("showScene",sceneID);
+		Platform.runLater(()->{
+			if (sceneObjectMap.containsKey(sceneID)) {
+				SceneObject sceneObject = sceneObjectMap.get(sceneID);
+				sceneObject.setStageWidth(width);
+				sceneObject.setStageHeight(height);
+				showSceneObject(sceneID,true);
+			}
+			else warnNoScene("showScene",sceneID);
+		});
 	}
 
 	/**
@@ -398,9 +408,11 @@ public class Switcher {
 	 * on a web browser.
 	 */
 	public static void showLastScene() {
-		Integer lastSceneID = history.getLastSceneID();
-		System.out.println("LastSceneID: " + lastSceneID);
-		showSceneObject(lastSceneID,false);
+		Platform.runLater(()->{
+			Integer lastSceneID = history.getLastSceneID();
+			System.out.println("LastSceneID: " + lastSceneID);
+			showSceneObject(lastSceneID,false);
+		});
 	}
 
 	private static void showSceneObject(Integer sceneID, boolean showingNewScene) {
