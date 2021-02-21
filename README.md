@@ -66,6 +66,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 </dependency>
 ```
 
+Or, if using Gradle to build, add this to your Gradle build file
+
+```groovy
+compile group: 'com.simtechdata', name: 'Switcher', version: 1.2.1
+```
+
+You can even use it from a Groovy script!
+
+```groovy
+@Grapes(
+  @Grab(group='com.simtechdata', module='Switcher', version=1.2.1)
+)
+```
+
+
 
 ## Additional Features
 
