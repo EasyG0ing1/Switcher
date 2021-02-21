@@ -26,8 +26,8 @@ public class TestOnAction extends Application {
         BorderPane scene1 = new BorderPane(new VBox(10, new Label("Hello, World!"), buttonChangeScene));
         BorderPane scene2 = new BorderPane(new VBox(10, new Label("Goodbye, cruel World!")));
 
-        Switcher.addScene(1, scene1, 400, 200);
-        Switcher.addScene(2, scene2, 400, 200);
+        Switcher.addScene(1, scene1, 400.0, 200.0);
+        Switcher.addScene(2, scene2, 400.0, 200.0);
 
         // On button action, change to scene two
         buttonChangeScene.setOnAction(e -> Switcher.showScene(2));

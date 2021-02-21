@@ -16,7 +16,9 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -33,10 +35,11 @@ public class Switcher {
 	private static final Map<Integer, SceneObject>         sceneObjectMap               = new HashMap<>();
 	private static final Map<Integer, Stage>               stageMap                     = new HashMap<>();
 	private static final Map<Integer, EventHandler<Event>> sceneShownMap                = new HashMap<>();
+	private static final List<Integer>                     randomInts                   = new ArrayList<>();
 	private static       boolean                           firstRun                     = true;
 	private static final HistoryKeeper                     history                      = new HistoryKeeper();
 	private static       Stage                             stage;
-	private static       Integer                           coreStageID                  = getRandom();
+	private static       Integer                           defaultStageID               = getRandom();
 	private static       Integer                           showingSceneID;
 	private static       Integer                           lastSceneIDShowing;
 
@@ -85,51 +88,57 @@ public class Switcher {
 	 *
 	 * @param sceneID a unique Integer that you provide and maintain in your code
 	 * @param root a Parent such as an AnchorPane or a VBox - it is the foundation of the Stage
-	 * @param width double - sets the stage width for this getScene.
-	 * @param height double - sets the stage height for this getScene
+	 * @param width Double - sets the stage width for this getScene.
+	 * @param height Double - sets the stage height for this getScene
 	 */
 	public static void addScene(Integer sceneID, Parent root, double width, double height) {
-		addSceneObject(sceneID,null, root, width, height);
+		addSceneObject(sceneID,null, root, width, height,null);
 	}
 
 	public static void addScene(Integer sceneID, Integer stageID, Parent root, double width, double height, StageStyle initStyle, Modality initModality) {
-		checkStageID(stageID);
 		if (!stageMap.containsKey(stageID)) {
 			Stage stage = new Stage();
 			if (initStyle != null) stage.initStyle(initStyle);
 			if (initModality != null) stage.initModality(initModality);
 			stageMap.put(stageID,stage);
 		}
-		addSceneObject(sceneID, stageID, root, width, height);
+		checkForIDConflict(stageID);
+		addSceneObject(sceneID, stageID, root, width, height,null);
 	}
 
 	public static void addScene(Integer sceneID, Integer stageID, Parent root, double width, double height, StageStyle initStyle) {
-		checkStageID(stageID);
+		checkForIDConflict(stageID);
 		if (!stageMap.containsKey(stageID)) {
 			Stage stage = new Stage();
 			if (initStyle != null) stage.initStyle(initStyle);
 			stageMap.put(stageID,stage);
 		}
-		addSceneObject(sceneID, stageID, root, width, height);
+		addSceneObject(sceneID, stageID, root, width, height,null);
 	}
 
 	public static void addScene(Integer sceneID, Integer stageID, Parent root, double width, double height, Modality initModality) {
-		checkStageID(stageID);
+		checkForIDConflict(stageID);
 		if (!stageMap.containsKey(stageID)) {
 			Stage stage = new Stage();
 			if (initModality != null) stage.initModality(initModality);
 			stageMap.put(stageID,stage);
 		}
-		addSceneObject(sceneID, stageID, root, width, height);
+		addSceneObject(sceneID, stageID, root, width, height,null);
 	}
 
 	public static void addScene(Integer sceneID, Integer stageID, Parent root, double width, double height) {
-		checkStageID(stageID);
+		checkForIDConflict(stageID);
 		if (!stageMap.containsKey(stageID)) {
 			Stage stage = new Stage();
 			stageMap.put(stageID,stage);
 		}
-		addSceneObject(sceneID, stageID, root, width, height);
+		addSceneObject(sceneID, stageID, root, width, height,null);
+	}
+
+	public static void addScene(Integer sceneID, Scene scene, Stage stage) {
+		Integer newStageID = getRandom();
+		stageMap.put(newStageID, stage);
+		addSceneObject(sceneID,newStageID,null,null, null,scene);
 	}
 
 	/**
@@ -146,7 +155,7 @@ public class Switcher {
 	 * @param stage a Stage that you configured
 	 */
 	public static void addStage(Integer stageID, Stage stage) {
-		checkStageID(stageID);
+		checkForIDConflict(stageID);
 		if (!stageMap.containsKey(stageID)) {
 			stageMap.put(stageID, stage);
 		}
@@ -208,9 +217,9 @@ public class Switcher {
 	 * @param initModality your Modality
 	 */
 	public static void configureDefaultStage(StageStyle initStyle, Modality initModality) {
-		if (!stageMap.containsKey(coreStageID)) stageMap.put(coreStageID,new Stage());
-		if (initStyle != null) stageMap.get(coreStageID).initStyle(initStyle);
-		if (initModality != null) stageMap.get(coreStageID).initModality(initModality);
+		if (!stageMap.containsKey(defaultStageID)) stageMap.put(defaultStageID, new Stage());
+		if (initStyle != null) stageMap.get(defaultStageID).initStyle(initStyle);
+		if (initModality != null) stageMap.get(defaultStageID).initModality(initModality);
 	}
 
 	/**
@@ -239,8 +248,8 @@ public class Switcher {
 	 * @return default Stage or null if you have not added any scenes.
 	 */
 	public static Stage getDefaultStage() {
-		if (!stageMap.containsKey(coreStageID)) stageMap.put(coreStageID,new Stage());
-		return stageMap.get(coreStageID);
+		if (!stageMap.containsKey(defaultStageID)) stageMap.put(defaultStageID, new Stage());
+		return stageMap.get(defaultStageID);
 	}
 
 	/**
@@ -354,9 +363,16 @@ public class Switcher {
 
 	/**
 	 * Use sceneVisible to find out if the getScene is currently showing on the screen
+	 * @deprecated use visible()
 	 * @return boolean - if true, then Stage is currently being shown on screen
 	 */
-	public static boolean sceneVisible() {return Switcher.stageVisibleProperty.getValue();}
+	public static boolean sceneVisible() {return visible();}
+
+	/**
+	 * Use visible to find out if Switcher is currently showing any scene at all
+	 * @return true if Stage is currently being shown on screen
+	 */
+	public static boolean visible() {return Switcher.stageVisibleProperty.getValue();}
 
 	/**
 	 * showScene is used to display any of the scenes that
@@ -521,16 +537,13 @@ public class Switcher {
 		}
 		visibleWithHistoryProperty.setValue(history.hasHistory());
 		enabledWithHistoryProperty.setValue(!history.hasHistory());
-//		stage.hide();
-		stage = (sceneObject.getStageID() == null) ? stageMap.get(coreStageID) : stageMap.get(sceneObject.getStageID());
+		stage = (sceneObject.getStageID() == null) ? stageMap.get(defaultStageID) : stageMap.get(sceneObject.getStageID());
 		final Scene   scene       = sceneObject.getScene();
 		final double  stageX      = sceneObject.getStageX();
 		final double  stageY      = sceneObject.getStageY();
-		final double  stageWidth  = sceneObject.getWidth();
-		final double  stageHeight = sceneObject.getHeight();
+		final double  stageWidth  = (sceneObject.getWidth() == null) ? stage.getWidth() : sceneObject.getWidth();
+		final double  stageHeight = (sceneObject.getHeight() == null) ? stage.getHeight() : sceneObject.getHeight();
 		final boolean customXY    = sceneObject.hasCustomXY();
-		stage.setWidth(stageWidth);
-		stage.setHeight(stageHeight);
 		stage.setScene(scene);
 		if (sceneObject.hideOnLostFocus()) stage.focusedProperty().addListener(lostFocusListener);
 		else stage.focusedProperty().removeListener(lostFocusListener);
@@ -574,35 +587,34 @@ public class Switcher {
 	private static Integer getRandom() {
 		int min = 1000000;
 		int max = 9999999;
-		return ThreadLocalRandom.current().nextInt(min, max + 1);
-	}
-
-	private static void getNewRandom(Integer duplicateInteger) {
-		int min = 1000000;
-		int max = 9999999;
-		while (coreStageID.equals(duplicateInteger)) {
-			coreStageID = ThreadLocalRandom.current().nextInt(min, max + 1);
+		Integer finalInt = ThreadLocalRandom.current().nextInt(min, max + 1);
+		while (randomInts.contains(finalInt) || stageMap.containsKey(finalInt)) {
+			finalInt = ThreadLocalRandom.current().nextInt(min, max + 1);
 		}
+		randomInts.add(finalInt);
+		return finalInt;
 	}
 
-	private static void addSceneObject(Integer sceneID, Integer stageID, Parent parent, double width, double height) {
+	private static void addSceneObject(Integer sceneID, Integer stageID, Parent parent, Double width, Double height, Scene scene) {
 		if (Switcher.firstRun) {
-			if (!stageMap.containsKey(coreStageID)) stageMap.put(coreStageID,new Stage());
+			if (!stageMap.containsKey(defaultStageID)) stageMap.put(defaultStageID, new Stage());
 			stageVisibleProperty.addListener((observable, oldValue, newValue) -> {
 				if (newValue) showStage();
 				else hideStage();
 			});
 			Switcher.firstRun = false;
 		}
-		sceneObjectMap.put(sceneID, new SceneObject(stageID, parent, width, height));
+		if (parent == null) sceneObjectMap.put(sceneID, new SceneObject(stageID, scene, width, height));
+		else sceneObjectMap.put(sceneID, new SceneObject(stageID, parent, width, height));
 		sceneObjectMap.get(sceneID).setHiddenOnLostFocus(Switcher.hideSceneOnLostFocusProperty.getValue());
 	}
 
-	private static void checkStageID(Integer stageID) {
-		if (stageID.equals(coreStageID)) {
-			getNewRandom(stageID);
-			stageMap.put(coreStageID,stageMap.get(stageID));
-			stageMap.remove(stageID);
+	private static void checkForIDConflict(Integer stageID) {
+		if (randomInts.contains(stageID) || stageID.equals(defaultStageID)) {
+			Integer oldDefaultStageID = defaultStageID;
+			defaultStageID = getRandom();
+			stageMap.put(defaultStageID, stageMap.get(oldDefaultStageID));
+			stageMap.remove(oldDefaultStageID);
 		}
 	}
 
@@ -628,30 +640,28 @@ public class Switcher {
  */
 class SceneObject extends Switcher {
 
-	SceneObject(Integer stageID, Parent parent, double width, double height) {
+	SceneObject(Integer stageID, Parent parent, Double width, Double height) {
 		this.stageID = stageID;
-		this.parent  = parent;
 		this.width   = width;
 		this.height  = height;
-		this.scene   = new Scene(this.parent);
+		this.scene   = new Scene(parent);
 	}
 
-	SceneObject(Parent parent, double width, double height) {
-		this.parent  = parent;
+	SceneObject(Integer stageID, Scene scene, Double width, Double height) {
+		this.stageID = stageID;
 		this.width   = width;
 		this.height  = height;
-		this.scene   = new Scene(this.parent);
+		this.scene   = scene;
 	}
 
 	private       Integer stageID;
 	private final Scene   scene;
-	private final Parent  parent;
-	private       double  width;
-	private       double  height;
-	private       double  stageX = -1;
-	private       double  stageY = -1;
-	private boolean customXY = false;
-	private boolean hideOnLostFocus;
+	private       Double  width;
+	private       Double  height;
+	private       double  stageX   = -1.0;
+	private       double  stageY   = -1.0;
+	private       boolean customXY = false;
+	private       boolean hideOnLostFocus;
 
 	public boolean hideOnLostFocus() {
 		return hideOnLostFocus;
@@ -671,23 +681,23 @@ class SceneObject extends Switcher {
 
 	public void setStageID(Integer stageID)   {this.stageID = stageID;}
 
-	public double getWidth()                  {return width;} // Returns width of stage
+	public Double getWidth()                  {return width;} // Returns width of stage
 
-	public double getHeight()               {return height;} // Returns height of stage
+	public Double getHeight()                 {return height;} // Returns height of stage
 
-	public double getStageX()               {return stageX;} // Returns the top left corner of stage as X coordinate
+	public double getStageX()                 {return stageX;} // Returns the top left corner of stage as X coordinate
 
-	public double getStageY()            {return stageY;} // Returns the top left corner of stage as Y coordinate
+	public double getStageY()                 {return stageY;} // Returns the top left corner of stage as Y coordinate
 
-	public void setStageX(double stageX) {this.stageX = stageX;}
+	public void setStageX(Double stageX)      {this.stageX = stageX;}
 
-	public void setStageY(double stageY) {this.stageY = stageY;}
+	public void setStageY(Double stageY)      {this.stageY = stageY;}
 
-	public void setStageWidth(double width) {
+	public void setStageWidth(Double width) {
 		this.width = width;
 	}
 
-	public void setStageHeight(double height) {
+	public void setStageHeight(Double height) {
 		this.height = height;
 	}
 

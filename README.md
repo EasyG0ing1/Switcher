@@ -8,7 +8,7 @@ and Switcher takes care of the rest!
 
 There are also three [completely runnable test applications](./src/test/) under Test that
 show how to use Switcher from the most common and simple ways to the Lets Get Nuts ways
-which allow you to even utilize different stages and assign them to your scenes and
+which shows you how to implement different stages and assign them to your scenes and
 then with grace and style, you just show the scene with a single and simple line of code.
 
 ---
@@ -31,6 +31,13 @@ Then, when you're ready to show your scene, you simply
 Switcher.showScene(sceneID);
 ```
 
+If you just want to use Switcher to manage the scenes and stages that you build
+and configure yourself, and be able to easily show them from any class in your program,
+just add them like this:
+```java
+Switcher.addScene(sceneID, Scene, Stage);
+```
+
 And the rest is handled for you! Even if your scenes have different dimensions,
 Switcher will properly handle the Stage to accommodate the scenes settings.
 
@@ -44,7 +51,7 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>Switcher</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 </dependency>
 ```
 
@@ -58,13 +65,13 @@ Switcher maintains a history of scenes as you show them. This will let you imple
 such as a Button, to just go back to the last shown Scene. You can continue going back to the
 first scene that you brought up. The proper way to engage this feature, is to create your
 control that will invoke showLastScene(). Because invoking the last scene will do nothing
-when you are at the first scene shown, Switcher offers to different BooleanProperties that
+when you are at the first scene shown, Switcher offers two different BooleanProperties that
 you can bind to your controls visibleProperty or enabledProperty. Here is how you would set it up.
 
 ```java
 Button button = new Button("Previous");
 button.setOnAction(e-> Switcher.showLastScene());
-button.disableProperty().bind(Switcher.getNoHistoryProperty());
+button.disableProperty().bind(Switcher.getEnabledWithHistoryProperty());
 ```
 
 This configuration will simply disable the button when the user is at the first scene shown
@@ -72,31 +79,42 @@ without any history in the que. Alternatively you could do this to hide the butt
 is no history to go to.
 
 ```java
-button.visibleProperty().bind(Switcher.getHasHistoryProperty());
+button.visibleProperty().bind(Switcher.getVisibleWithHistoryProperty());
 ```
 
 ### Hiding on lost focus
 
 With some application styles, it might be useful to automatically hide the scene when the user has
-clicked off of it and onto some other window or program on their computer. You can enable a
-thread that monitors for lost focus on the stage and when it loses focus, it hides itself.
+clicked off of it and onto some other window or program on their computer. When you enablke this 
+feature, Switcher assigns a ChangeListener to the stage and it hides itself when it has lost focus.
+You can optionally apply this behavior to selected scenes and Switcher keeps track of all that and
+implements the behavior that you need. If you do not include a sceneID, Switcher will apply this
+feature to all scenes that you have added to Switcher.
 
 ```java
 Switcher.setHideSceneOnLostFocus(true);
+Switcher.setHideSceneOnLostFocus(sceneID, true);
 ```
 
 OR, you can hide the scene yourself
 
 ```java
-Switcher.setSceneVisible(false);
+Switcher.hide();
 ```
 
-And bring it right back by setting it true;
-
-You can also get the current status of those settings
+And bring it right back
 ```java
-Switcher.sceneVisible();
-Switcher.sceneHiddenOnLostFocus();
+Switcher.unHide();
+```
+
+You can also find out if a specific scene is the currently displayed scene
+```java
+Switcher.isShowing(sceneID);
+```
+
+Or if Switcher is actively showing a scene at all
+```java
+Switcher.visible();
 ```
 
 ### Size and Position
@@ -115,12 +133,6 @@ Switcher.showSceneWithSize(sceneID, width, height);
 Switcher.showSceneWithPosition(sceneID, stageX, stageY);
 ```
 
-### Is it currently showing?
-This method tells you if a specific sceneID is currently being shown on the screen.
-```java
-Switcher.isShowing(sceneID);
-```
-
 ## Trigger Methods
 You can now assign an event to a scene, so that when you call showScene, that event will trigger.
 ```java
@@ -128,7 +140,6 @@ Switcher.setOnShown(C.FORM_THREE, e->{
 	myCode();
 });
 ```
-
 
 
 ## Advanced Features
@@ -148,19 +159,16 @@ Switcher.addScene(sceneID, stageID, Parent, width, height, StageStyle, Modality)
 ```
 
 Optionally, you can build your stage before hand, then add it to Switcher like this:
-
 ```java
 Switcher.addStage(stageID, Stage);
 ```
 
 Then you simply add Scenes and reference the stageID in the add method
-
 ```java
 Switcher.addScene(sceneID, stageID, Parent, width, height);
 ```
 
 Or you can later assign a Stage to a scene after you've already added the Scene
-
 ```java
 Switcher.assignSceneToStage(sceneID, stageID);
 ```
@@ -171,7 +179,6 @@ Therefore, it is necessary to set up your stages before showing your scenes.
 ### Removing A Scene or a Stage
 
 If you need to, you can also remove a scene from Switcher.
-
 ```java
 Switcher.removeScene(sceneID);
 Switcher.removeStage(stageID);
@@ -193,7 +200,6 @@ Switcher.configureDefaultStage(StageStyle, Modality);
 
 If you only want to set one of those two options, then simply pass null into the other
 one, and it will use the default that Java assigns.
-
 ```java
 Switcher.configureDefaultStage(StageStyle, null);
 ```
@@ -202,14 +208,13 @@ Switcher.configureDefaultStage(StageStyle, null);
 
 I'm glad you asked, because you can gain access to any of the stages, including the
 default stage so that you can assign the setOnCloseRequest method.
-
 ```java
 Switcher.getStage(stageID).setOnCloseRequest(e-> closeApp());
 Switcher.getDefaultStage().setOnCloseRequest(e-> closeApp());
 ```
 
 ##  Example Programs
-In the test folder are three completely runnable programs. You simple run the Main method
+In the test folder are runnable programs. You simply run the Main method
 from any of the packages to see examples of different ways to use Switcher. Also, in the
 Main class, I have included useful comments that explains everything relevant to that
 packages implementation style.
