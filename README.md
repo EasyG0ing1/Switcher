@@ -31,15 +31,26 @@ Then, when you're ready to show your scene, you simply
 Switcher.showScene(sceneID);
 ```
 
-If you just want to use Switcher to manage the scenes and stages that you build
+And the rest is handled for you! Even if your scenes have different dimensions,
+Switcher will properly handle the Stage to accommodate the scenes settings.
+
+
+## But what about MY Stages and Scenes?
+
+If you just want to use Switcher to manage the Scenes and Stages that you build
 and configure yourself, and be able to easily show them from any class in your program,
 just add them like this:
 ```java
 Switcher.addScene(sceneID, Scene, Stage);
 ```
 
-And the rest is handled for you! Even if your scenes have different dimensions,
-Switcher will properly handle the Stage to accommodate the scenes settings.
+And show them from any class in your application like this:
+
+```java
+Switcher.showScene(sceneID);
+```
+
+Switcher takes care of everything for you!
 
 ---
 
