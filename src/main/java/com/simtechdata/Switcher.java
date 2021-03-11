@@ -95,6 +95,12 @@ public class Switcher {
 		addSceneObject(sceneID,null, root, width, height,null);
 	}
 
+	public static void addScene(Integer sceneID, Parent root, double width, double height, StageStyle initStyle, Modality initModality) {
+		addSceneObject(sceneID,null, root, width, height,null);
+		stageMap.get(defaultStageID).initStyle(initStyle);
+		stageMap.get(defaultStageID).initModality(initModality);
+	}
+
 	public static void addScene(Integer sceneID, Integer stageID, Parent root, double width, double height, StageStyle initStyle, Modality initModality) {
 		if (!stageMap.containsKey(stageID)) {
 			Stage stage = new Stage();
