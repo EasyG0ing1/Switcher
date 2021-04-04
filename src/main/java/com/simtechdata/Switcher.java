@@ -557,6 +557,8 @@ public class Switcher {
 		stage.setScene(scene);
 		if (sceneObject.hideOnLostFocus()) stage.focusedProperty().addListener(lostFocusListener);
 		else stage.focusedProperty().removeListener(lostFocusListener);
+		stage.setHeight(stageHeight);
+		stage.setWidth(stageWidth);
 		Platform.runLater(() -> {
 			Rectangle2D  screenBounds = Screen.getPrimary().getVisualBounds();
 			double       screenWidth  = screenBounds.getWidth();
