@@ -395,14 +395,16 @@ public class Switcher {
 	 * @param sceneID a unique Integer - each getScene needs a unique sceneID
 	 */
 	public static void showScene(Integer sceneID) {
-		Platform.runLater(()->{
-			if (sceneObjectMap.containsKey(sceneID)) {
-				showSceneObject(sceneID, true);
-				if (sceneShownMap.containsKey(sceneID)) sceneShownMap.get(sceneID).handle(new ActionEvent());
-			} else {
-				warnNoScene("showScene",sceneID);
-			}
-		});
+		if (!isShowing(sceneID)) {
+			Platform.runLater(()->{
+				if (sceneObjectMap.containsKey(sceneID)) {
+					showSceneObject(sceneID, true);
+					if (sceneShownMap.containsKey(sceneID)) sceneShownMap.get(sceneID).handle(new ActionEvent());
+				} else {
+					warnNoScene("showScene",sceneID);
+				}
+			});
+		}
 	}
 
 	/**
