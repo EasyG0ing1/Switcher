@@ -222,10 +222,12 @@ public class Switcher {
 	 * @param initStyle your StageStyle
 	 * @param initModality your Modality
 	 */
-	public static void configureDefaultStage(StageStyle initStyle, Modality initModality) {
-		if (!stageMap.containsKey(defaultStageID)) stageMap.put(defaultStageID, new Stage());
-		if (initStyle != null) stageMap.get(defaultStageID).initStyle(initStyle);
-		if (initModality != null) stageMap.get(defaultStageID).initModality(initModality);
+	public static void configureDefaultStage(final StageStyle initStyle, final Modality initModality) {
+		Platform.runLater(()->{
+			if (!stageMap.containsKey(defaultStageID)) stageMap.put(defaultStageID, new Stage());
+			if (initStyle != null) stageMap.get(defaultStageID).initStyle(initStyle);
+			if (initModality != null) stageMap.get(defaultStageID).initModality(initModality);
+		});
 	}
 
 	/**
@@ -324,7 +326,7 @@ public class Switcher {
 	 * @deprecated must pass the sceneID for specific scenes
 	 * @return boolean if true, then this option is enabled
 	 */
-	public static boolean sceneHiddenOnLostFocus()                      {return Switcher.hideSceneOnLostFocusProperty.getValue();}
+	public static boolean sceneHiddenOnLostFocus() {return Switcher.hideSceneOnLostFocusProperty.getValue();}
 
 	/**
 	 * Call sceneHiddenOnLostFocus to find out if Switcher is configured to
