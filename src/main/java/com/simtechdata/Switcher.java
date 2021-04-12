@@ -249,6 +249,22 @@ public class Switcher {
 	}
 
 	/**
+	 * use setDefaultStage to assign your own stage to Switcher, for
+	 * example, in your Main method, you might want to assign the initial
+	 * primaryStage to Switcher so that it integrates better with other
+	 * libraries you might be using such as FXTrayIcon or any libraries
+	 * that use the defaultStage.
+	 *
+	 * This needs to be the first Switcher command you execute before
+	 * adding any scenes or Switcher will create it's own default Stage.
+	 * @param stage is the stage you are assigning as default.
+	 */
+	public static void setDefaultStage(Stage stage) {
+		if (stageMap.containsKey(defaultStageID)) System.err.println("Switcher already has a default Stage, this must be the first command executed in your code.");
+		else stageMap.put(defaultStageID, stage);
+	}
+
+	/**
 	 * use setDefaultStage to get access to the default stage
 	 * This would mainly be used so that you can set the
 	 * setOnCloseRequest option of the stage to have it

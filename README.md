@@ -62,21 +62,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>Switcher</artifactId>
-    <version>1.2.5</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'Switcher', version: 1.2.5
+compile group: 'com.simtechdata', name: 'Switcher', version: 1.3.0
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='Switcher', version=1.2.5)
+  @Grab(group='com.simtechdata', module='Switcher', version=1.3.0)
 )
 ```
 
@@ -216,9 +216,21 @@ to the default Stage.
 
 ### Default Stage Configuration
 
-If you're just going to use the default stage that Switcher creates when you just add
-a scene using the basic addScene method call, you can optionally configure that default
-stages StageStyle and Modality, but this must be done before ever calling showScene.
+As of Switcher version 1.3.0, you can assign the default Stage to Switcher. This could be
+useful to keep consistency fluid with other libraries that might rely on you launch classes
+primaryStage. You would need to make this your first Switcher command:
+
+
+```java
+Switcher.setDefaultStage(primaryStage);
+```
+
+
+If you're just going to use the default stage that Switcher creates when you add
+a scene using the basic addScene method call (or if you manually set the default Stage),
+you can optionally configure that default stages StageStyle and Modality, but this must
+be done before ever calling showScene. If you only wish to set one of the two, then set
+the other one to null.
 
 ```java
 Switcher.configureDefaultStage(StageStyle, Modality);
