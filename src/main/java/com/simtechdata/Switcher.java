@@ -11,15 +11,9 @@ import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Modality;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.stage.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -356,6 +350,16 @@ public class Switcher {
 		}
 		else warnNoScene("sceneHiddenOnLostFocus",sceneID);
 		return null;
+	}
+
+	/**
+	 * Call getWindow(sceneID) to quickly get the Window of the current
+	 * Scene on stage.
+	 * @param sceneID unique sceneID Integer
+	 * @return Window of the current Scene
+	 */
+	public static Window getWindow(Integer sceneID) {
+		return Objects.requireNonNull(getScene(sceneID)).getWindow();
 	}
 
 	/**

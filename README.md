@@ -62,21 +62,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>Switcher</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'Switcher', version: 1.3.0
+compile group: 'com.simtechdata', name: 'Switcher', version: 1.3.1
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='Switcher', version=1.3.0)
+  @Grab(group='com.simtechdata', module='Switcher', version=1.3.1)
 )
 ```
 
@@ -216,7 +216,7 @@ to the default Stage.
 
 ### Default Stage Configuration
 
-As of Switcher version 1.3.0, you can assign the default Stage to Switcher. This could be
+As of Switcher version 1.3.1, you can assign the default Stage to Switcher. This could be
 useful to keep consistency fluid with other libraries that might rely on you launch classes
 primaryStage. You would need to make this your first Switcher command:
 
