@@ -9,7 +9,9 @@ and Switcher takes care of the rest!
 There are also three [completely runnable test applications](./src/test/) under Test that
 show how to use Switcher from the most common and simple ways to the Lets Get Nuts ways
 which shows you how to implement different stages and assign them to your scenes and
-then with grace and style, you just show the scene with a single and simple line of code.
+then with grace and style, you just show the scene with a single and simple line of code.<br><br>
+---
+### 1.3 Changes and Additions at the end of this document
 
 ---
 
@@ -62,21 +64,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>Switcher</artifactId>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'Switcher', version: 1.3.1
+compile group: 'com.simtechdata', name: 'Switcher', version: 1.3.2
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='Switcher', version=1.3.1)
+  @Grab(group='com.simtechdata', module='Switcher', version=1.3.2)
 )
 ```
 
@@ -216,7 +218,7 @@ to the default Stage.
 
 ### Default Stage Configuration
 
-As of Switcher version 1.3.1, you can assign the default Stage to Switcher. This could be
+As of Switcher version 1.3.2, you can assign the default Stage to Switcher. This could be
 useful to keep consistency fluid with other libraries that might rely on you launch classes
 primaryStage. You would need to make this your first Switcher command:
 
@@ -268,3 +270,28 @@ Any operating system that supports JavaFX will support Switcher.
 ## Projects using `Switcher`
 
 If your project uses Switcher, let us know via Pull Request, and we'll feature your project on this README.
+
+---
+## 1.3 Changes and Additions
+- ###Fixed:
+  * **showScene()** method now consistently re-sizes the Scene being shown to it's defined parameters.<br><br>
+- ###Added:<br>
+  * **`init(primaryStage)`** method for those situations where you want to set your applications initial primaryStage as Switchers defaiult Stage.<br>
+  * **`setPrimary(primaryStage)`** same as above, just a different word - options never hurt.<br>
+  * **`getWindow(sceneID)`** method for a more streamlined way to attain a Scenes Window. Particularly useful for things like showDialogue() or when showing a **FileChoser** or a **DirectoryChoser**.<br>
+  * **`hide(sceneID)`**  - overloaded method so that you can select which Scene you want to hide. Useful in situations where you have multiple Stages showing at the same time. By hiding a specific sceneID, Switcher will automatically get the stage that is showing that Scene then hide it. The usual hide() method works as it always has, by hiding the defaultStage.<br>
+  * **`show(sceneID)`** and `unHide(sceneID)`  - overloaded method so that you can show the specific scene you previously hid. If you didn't previously hide the scene, you will get an error telling you to use the showScene method.<br>
+  * **`getStageForScene(sceneID)`** - Lets you pull the Stage assigned to any of your Scenes so that you can modify them as needed.<br>
+
+- ###Depreciated methods removed:<br>
+  * **setHideSceneOnLostFocus()** - use **setHideOnLostFocus()** instead which also has options for specific sceneIDs.<br>
+  * **sceneVisible()** - use **visible()** instead.<br>
+  * **setSceneVisible(boolean)** - use **show()**, **hide()**, or **unHide()** as you prefer.<br>
+    * The **show()** and **unHide()** methods simply makes the Stage that was hidden with the hide() method - visible again.<br>
+    * **show()**, **hide()** and **unhide()** will do nothing if you have multiple Stages set up in Switcher.<br>
+      * Use **show(sceneID)**, **hide(sceneID)** and **unHide(sceneID)** instead.<br>
+      * As always, use **showScene(sceneID)** to display a specific Scene.<br>
+---
+##Coming Soon:
+- Ratios! - The ability to set the size of your Scenes based on a percentage of the users window resolution. This will be great as it will dynamically size your Scenes based on the ratios you set ... no more tiny windows on those large displays or oversized Scenes on smaller resolutions. It will be particularly useful in virtual machine environments where screen sizes are all over the map. It will also take into account those ultrawide monitors so as to not go overboard if you desire that behavior.<br><br>
+- ####Comments, criticisms, suggestions etc. are **ALWAYS** welcome! Create an issue or a pull request to participate in the project.

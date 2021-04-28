@@ -1,5 +1,18 @@
 package com.simtechdata;
 
+/*
+ * Code developed by Mike Sims  - 2020
+ *
+ * This library is an evolution that emerged out of a personal library project where
+ * I created classes to significantly streamline my development time across projects.
+ * I realized that it had matured to a point where it needed to stand on its own
+ * and since I use this library in all of my projects, I thought that perhaps the
+ * community in general could benefit from it.
+ *
+ * I hope you enjoy using it as much as I've enjoyed developing it.
+ */
+
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -12,7 +25,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.*;
-
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -20,7 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Switcher is a library that makes managing your scenes literally one line of code easy!
  * It all starts with the addScene() method.
  */
-public class Switcher {
+@SuppressWarnings({"unused", "SameParameterValue"}) public class Switcher {
 
 	private static final BooleanProperty                   stageVisibleProperty         = new SimpleBooleanProperty(true);
 	private static final BooleanProperty                   hideSceneOnLostFocusProperty = new SimpleBooleanProperty(false);
@@ -30,12 +42,38 @@ public class Switcher {
 	private static final Map<Integer, Stage>               stageMap                     = new HashMap<>();
 	private static final Map<Integer, EventHandler<Event>> sceneShownMap                = new HashMap<>();
 	private static final List<Integer>                     randomInts                   = new ArrayList<>();
+	private static final boolean                           NEW_SCENE                    = true;
+	private static final boolean                           PRIOR_SCENE                  = false;
 	private static       boolean                           firstRun                     = true;
 	private static final HistoryKeeper                     history                      = new HistoryKeeper();
 	private static       Stage                             stage;
 	private static       Integer                           defaultStageID               = getRandom();
 	private static       Integer                           showingSceneID;
 	private static       Integer                           lastSceneIDShowing;
+
+	/**
+	 * Use this method in situations where you need to assign the primaryStage
+	 * that is created at the start of your program as the default Stage
+	 * in Switcher.
+	 *
+	 * THIS MUST BE THE FIRST CALL YOU MAKE TO SWITCHER BEFORE ADDING A SCENE!
+	 *
+	 * @param primaryStage Stage - your programs primaryStage
+	 */
+	public static void init(Stage primaryStage) {
+		setPrimaryStage(primaryStage);
+	}
+
+	/**
+	 * Alternate for init - options never hurt anything :-)
+	 *
+	 * THIS MUST BE THE FIRST CALL YOU MAKE TO SWITCHER BEFORE ADDING A SCENE!
+	 *
+	 * @param primaryStage Stage - your programs primaryStage
+	 */
+	public static void setPrimary(Stage primaryStage) {
+		setPrimaryStage(primaryStage);
+	}
 
 	/**
 	 * The addScene method is the first step to using Switcher. You maintain
@@ -86,13 +124,15 @@ public class Switcher {
 	 * @param height Double - sets the stage height for this getScene
 	 */
 	public static void addScene(Integer sceneID, Parent root, double width, double height) {
-		addSceneObject(sceneID,null, root, width, height,null);
+		addSceneObject(sceneID, null, root, width, height, null);
 	}
 
 	public static void addScene(Integer sceneID, Parent root, double width, double height, StageStyle initStyle, Modality initModality) {
-		addSceneObject(sceneID,null, root, width, height,null);
-		stageMap.get(defaultStageID).initStyle(initStyle);
-		stageMap.get(defaultStageID).initModality(initModality);
+		addSceneObject(sceneID, null, root, width, height, null);
+		stageMap.get(defaultStageID)
+				.initStyle(initStyle);
+		stageMap.get(defaultStageID)
+				.initModality(initModality);
 	}
 
 	public static void addScene(Integer sceneID, Integer stageID, Parent root, double width, double height, StageStyle initStyle, Modality initModality) {
@@ -100,10 +140,10 @@ public class Switcher {
 			Stage stage = new Stage();
 			if (initStyle != null) stage.initStyle(initStyle);
 			if (initModality != null) stage.initModality(initModality);
-			stageMap.put(stageID,stage);
+			stageMap.put(stageID, stage);
 		}
 		checkForIDConflict(stageID);
-		addSceneObject(sceneID, stageID, root, width, height,null);
+		addSceneObject(sceneID, stageID, root, width, height, null);
 	}
 
 	public static void addScene(Integer sceneID, Integer stageID, Parent root, double width, double height, StageStyle initStyle) {
@@ -111,9 +151,9 @@ public class Switcher {
 		if (!stageMap.containsKey(stageID)) {
 			Stage stage = new Stage();
 			if (initStyle != null) stage.initStyle(initStyle);
-			stageMap.put(stageID,stage);
+			stageMap.put(stageID, stage);
 		}
-		addSceneObject(sceneID, stageID, root, width, height,null);
+		addSceneObject(sceneID, stageID, root, width, height, null);
 	}
 
 	public static void addScene(Integer sceneID, Integer stageID, Parent root, double width, double height, Modality initModality) {
@@ -121,24 +161,24 @@ public class Switcher {
 		if (!stageMap.containsKey(stageID)) {
 			Stage stage = new Stage();
 			if (initModality != null) stage.initModality(initModality);
-			stageMap.put(stageID,stage);
+			stageMap.put(stageID, stage);
 		}
-		addSceneObject(sceneID, stageID, root, width, height,null);
+		addSceneObject(sceneID, stageID, root, width, height, null);
 	}
 
 	public static void addScene(Integer sceneID, Integer stageID, Parent root, double width, double height) {
 		checkForIDConflict(stageID);
 		if (!stageMap.containsKey(stageID)) {
 			Stage stage = new Stage();
-			stageMap.put(stageID,stage);
+			stageMap.put(stageID, stage);
 		}
-		addSceneObject(sceneID, stageID, root, width, height,null);
+		addSceneObject(sceneID, stageID, root, width, height, null);
 	}
 
 	public static void addScene(Integer sceneID, Scene scene, Stage stage) {
 		Integer newStageID = getRandom();
 		stageMap.put(newStageID, stage);
-		addSceneObject(sceneID,newStageID,null,null, null,scene);
+		addSceneObject(sceneID, newStageID, null, null, null, scene);
 	}
 
 	/**
@@ -167,8 +207,8 @@ public class Switcher {
 	 * @param sceneID a unique Integer
 	 */
 	public static void removeScene(Integer sceneID) {
-		if (sceneObjectMap.containsKey(sceneID)) sceneObjectMap.remove(sceneID);
-		else warnNoScene("removeScene",sceneID);
+		if (sceneObjectMap.containsKey(sceneID)) { sceneObjectMap.remove(sceneID); }
+		else { warnNoScene("removeScene", sceneID); }
 	}
 
 	/**
@@ -184,13 +224,14 @@ public class Switcher {
 			stageMap.remove(stageID);
 			for (Integer sid : sceneObjectMap.keySet()) {
 				SceneObject so = sceneObjectMap.get(sid);
-				if (so.getStageID().equals(stageID)) {
+				if (so.getStageID()
+					  .equals(stageID)) {
 					so.setStageID(null);
-					sceneObjectMap.replace(sid,so);
+					sceneObjectMap.replace(sid, so);
 				}
 			}
 		}
-		else warnNoStage("removeStage",stageID);
+		else { warnNoStage("removeStage", stageID); }
 	}
 
 	/**
@@ -201,9 +242,12 @@ public class Switcher {
 	 * @param sceneID Integer containing the Scenes ID
 	 * @param stageID Integer containing the Stages ID
 	 */
-	public static void assignSceneToStage (Integer sceneID, Integer stageID){
-		if (sceneObjectMap.containsKey(sceneID)) sceneObjectMap.get(sceneID).setStageID(stageID);
-		else warnNoScene("assignSceneToStage",sceneID);
+	public static void assignSceneToStage(Integer sceneID, Integer stageID) {
+		if (sceneObjectMap.containsKey(sceneID)) {
+			sceneObjectMap.get(sceneID)
+						  .setStageID(stageID);
+		}
+		else { warnNoScene("assignSceneToStage", sceneID); }
 	}
 
 	/**
@@ -217,10 +261,16 @@ public class Switcher {
 	 * @param initModality your Modality
 	 */
 	public static void configureDefaultStage(final StageStyle initStyle, final Modality initModality) {
-		Platform.runLater(()->{
+		Platform.runLater(() -> {
 			if (!stageMap.containsKey(defaultStageID)) stageMap.put(defaultStageID, new Stage());
-			if (initStyle != null) stageMap.get(defaultStageID).initStyle(initStyle);
-			if (initModality != null) stageMap.get(defaultStageID).initModality(initModality);
+			if (initStyle != null) {
+				stageMap.get(defaultStageID)
+						.initStyle(initStyle);
+			}
+			if (initModality != null) {
+				stageMap.get(defaultStageID)
+						.initModality(initModality);
+			}
 		});
 	}
 
@@ -236,10 +286,30 @@ public class Switcher {
 	 * Switcher will return null if the stageID does not exist.
 	 */
 	public static Stage getStage(Integer stageID) {
-		if(stageID == null) return getDefaultStage();
+		if (stageID == null) return getDefaultStage();
 		if (stageMap.containsKey(stageID)) return stageMap.get(stageID);
 		warnNoStage("getStage", stageID);
 		return null;
+	}
+
+	/**
+	 * use getStageForScene to pull the stage for any of your scenes
+	 * so that you can modify it as needed.
+	 *
+	 * Here is one example of how this could be used::
+	 * getStageForScene(sceneID).setTitle("Stage Title");
+	 *
+	 * @param sceneID the unique ID of your scene
+	 * @return Stage assigned to that Scene
+	 */
+	public static Stage getStageForScene(Integer sceneID) {
+		Stage requestedStage = null;
+		for (Integer sID : sceneObjectMap.keySet()) {
+			Integer sceneStageID = sceneObjectMap.get(sID)
+												 .getStageID();
+			if (sID.equals(sceneID)) requestedStage = stageMap.get(sceneStageID);
+		}
+		return requestedStage;
 	}
 
 	/**
@@ -254,8 +324,8 @@ public class Switcher {
 	 * @param stage is the stage you are assigning as default.
 	 */
 	public static void setDefaultStage(Stage stage) {
-		if (stageMap.containsKey(defaultStageID)) System.err.println("Switcher already has a default Stage, this must be the first command executed in your code.");
-		else stageMap.put(defaultStageID, stage);
+		if (stageMap.containsKey(defaultStageID)) { System.err.println("Switcher already has a default Stage, this must be the first command executed in your code."); }
+		else { stageMap.put(defaultStageID, stage); }
 	}
 
 	/**
@@ -278,10 +348,11 @@ public class Switcher {
 	 */
 	public static Scene getScene(Integer sceneID) {
 		if (sceneObjectMap.containsKey(sceneID)) {
-			return sceneObjectMap.get(sceneID).getScene();
+			return sceneObjectMap.get(sceneID)
+								 .getScene();
 		}
 		else {
-			warnNoScene("getScene",sceneID);
+			warnNoScene("getScene", sceneID);
 			return null;
 		}
 	}
@@ -297,7 +368,8 @@ public class Switcher {
 	public static void setHideOnLostFocus(boolean hideOnLostFocus) {
 		hideSceneOnLostFocusProperty.setValue(hideOnLostFocus);
 		for (Integer index : sceneObjectMap.keySet()) {
-			sceneObjectMap.get(index).setHiddenOnLostFocus(hideOnLostFocus);
+			sceneObjectMap.get(index)
+						  .setHiddenOnLostFocus(hideOnLostFocus);
 		}
 	}
 
@@ -312,31 +384,11 @@ public class Switcher {
 	 */
 	public static void setHideOnLostFocus(Integer sceneID, boolean hideOnLostFocus) {
 		if (sceneObjectMap.containsKey(sceneID)) {
-			sceneObjectMap.get(sceneID).setHiddenOnLostFocus(hideOnLostFocus);
+			sceneObjectMap.get(sceneID)
+						  .setHiddenOnLostFocus(hideOnLostFocus);
 		}
-		else warnNoScene("setHideOnLostFocus",sceneID);
+		else { warnNoScene("setHideOnLostFocus", sceneID); }
 	}
-
-	/**
-	 * When this is set to true, the stage will automatically
-	 * hide itself when the user clicks anywhere else on their
-	 * screen other than this getScene. Useful in pop style
-	 * applications. Pop style apps can be easily created using the
-	 * <a href="https://github.com/dustinkredmond/FXTrayIcon" target="_blank">
-	 *     FXTrayIcon library, written by Dustin Redmond</a>
-	 *
-	 * @deprecated use setHideOnLostFocus
-	 * @param hideOnLostFocus set {@code true} to enable
-	 */
-	public static void setHideSceneOnLostFocus(boolean hideOnLostFocus) {setHideOnLostFocus(hideOnLostFocus);}
-
-	/**
-	 * Call sceneHiddenOnLostFocus to find out if Switcher is configured to
-	 * hide all scenes when it looses focus.
-	 * @deprecated must pass the sceneID for specific scenes
-	 * @return boolean if true, then this option is enabled
-	 */
-	public static boolean sceneHiddenOnLostFocus() {return Switcher.hideSceneOnLostFocusProperty.getValue();}
 
 	/**
 	 * Call sceneHiddenOnLostFocus to find out if Switcher is configured to
@@ -346,9 +398,10 @@ public class Switcher {
 	 */
 	public static Boolean sceneHiddenOnLostFocus(Integer sceneID) {
 		if (sceneObjectMap.containsKey(sceneID)) {
-			return sceneObjectMap.get(sceneID).hideOnLostFocus();
+			return sceneObjectMap.get(sceneID)
+								 .hideOnLostFocus();
 		}
-		else warnNoScene("sceneHiddenOnLostFocus",sceneID);
+		else { warnNoScene("sceneHiddenOnLostFocus", sceneID); }
 		return null;
 	}
 
@@ -359,42 +412,64 @@ public class Switcher {
 	 * @return Window of the current Scene
 	 */
 	public static Window getWindow(Integer sceneID) {
-		return Objects.requireNonNull(getScene(sceneID)).getWindow();
-	}
-
-	/**
-	 * Use setSceneVisible and pass <strong>true</strong> into the argument to show the getScene
-	 * if it is currently hidden, or pass <strong>false</strong> to hide the getScene if desired.
-	 * @deprecated use show() or unHide() instead
-	 * @param visible set true to un hide the getScene, or false to hide it
-	 */
-	public static void setSceneVisible(boolean visible) {
-		if (visible) unHide(); else hide();
+		return Objects.requireNonNull(getScene(sceneID))
+					  .getWindow();
 	}
 
 	/**
 	 * use hide() to hide the currently showing scene
 	 */
 	public static void hide() {
-		lastSceneIDShowing = showingSceneID;
-		showingSceneID = null;
-		Switcher.stageVisibleProperty.setValue(false);
+		if (stageMap.size() == 1) {
+			lastSceneIDShowing = showingSceneID;
+			showingSceneID     = null;
+			Switcher.stageVisibleProperty.setValue(false);
+		}
+	}
+
+	/**
+	 * use this method to hide a Scene when you have more than
+	 * one Stage set up in Switcher.
+	 * @param sceneID Integer of your unique sceneID
+	 */
+	public static void hide(Integer sceneID) {
+		hideStage(sceneID);
 	}
 
 	/**
 	 * use unHide() to reveal the scene that was hidden with the hide() method.
 	 */
 	public static void unHide() {
-		if (showingSceneID == null) showingSceneID = lastSceneIDShowing;
-		Switcher.stageVisibleProperty.setValue(true);
+		show();
 	}
 
 	/**
-	 * Use sceneVisible to find out if the getScene is currently showing on the screen
-	 * @deprecated use visible()
-	 * @return boolean - if true, then Stage is currently being shown on screen
+	 * use show() to reveal the scene that was hidden with the hide() method.
 	 */
-	public static boolean sceneVisible() {return visible();}
+	public static void show() {
+		if (stageMap.size() == 1) {
+			if (showingSceneID == null) showingSceneID = lastSceneIDShowing;
+			Switcher.stageVisibleProperty.setValue(true);
+		}
+	}
+
+	/**
+	 * use this method to show a hidden Scene when you have
+	 * more than one Stage set up in Switcher
+	 * @param sceneID Integer of your unique sceneID
+	 */
+	public static void show(Integer sceneID) {
+		showStage(sceneID);
+	}
+
+	/**
+	 * use this method to show a hidden Scene when you have
+	 * more than one Stage set up in Switcher
+	 * @param sceneID Integer of your unique sceneID
+	 */
+	public static void unHide(Integer sceneID) {
+		show(sceneID);
+	}
 
 	/**
 	 * Use visible to find out if Switcher is currently showing any scene at all
@@ -416,12 +491,16 @@ public class Switcher {
 	 */
 	public static void showScene(Integer sceneID) {
 		if (!isShowing(sceneID)) {
-			Platform.runLater(()->{
+			Platform.runLater(() -> {
 				if (sceneObjectMap.containsKey(sceneID)) {
-					showSceneObject(sceneID, true);
-					if (sceneShownMap.containsKey(sceneID)) sceneShownMap.get(sceneID).handle(new ActionEvent());
-				} else {
-					warnNoScene("showScene",sceneID);
+					showSceneObject(sceneID, NEW_SCENE);
+					if (sceneShownMap.containsKey(sceneID)) {
+						sceneShownMap.get(sceneID)
+									 .handle(new ActionEvent());
+					}
+				}
+				else {
+					warnNoScene("showScene", sceneID);
 				}
 			});
 		}
@@ -439,18 +518,21 @@ public class Switcher {
 	 * @param stageY double
 	 */
 	public static void showScene(Integer sceneID, double width, double height, double stageX, double stageY) {
-		Platform.runLater(()->{
+		Platform.runLater(() -> {
 			if (sceneObjectMap.containsKey(sceneID)) {
 				SceneObject sceneObject = sceneObjectMap.get(sceneID);
 				sceneObject.setStageWidth(width);
 				sceneObject.setStageHeight(height);
 				sceneObject.setStageX(stageX);
 				sceneObject.setStageY(stageY);
-				showSceneObject(sceneID,true);
+				showSceneObject(sceneID, NEW_SCENE);
 
-				if (sceneShownMap.containsKey(sceneID)) sceneShownMap.get(sceneID).handle(new ActionEvent());
+				if (sceneShownMap.containsKey(sceneID)) {
+					sceneShownMap.get(sceneID)
+								 .handle(new ActionEvent());
+				}
 			}
-			else warnNoScene("showScene",sceneID);
+			else { warnNoScene("showScene", sceneID); }
 		});
 	}
 
@@ -463,19 +545,22 @@ public class Switcher {
 	 * @param stageY double
 	 */
 	public static void showSceneWithPosition(Integer sceneID, double stageX, double stageY) {
-		Platform.runLater(()->{
-			if (stageX < 0 || stageY < 0) System.err.println("Values for X and Y in showScene must not be negative");
+		Platform.runLater(() -> {
+			if (stageX < 0 || stageY < 0) { System.err.println("Values for X and Y in showScene must not be negative"); }
 			else {
 				if (sceneObjectMap.containsKey(sceneID)) {
 					SceneObject so = sceneObjectMap.get(sceneID);
 					so.setStageX(stageX);
 					so.setStageY(stageY);
 					so.setCustomXY(true);
-					showSceneObject(sceneID,true);
+					showSceneObject(sceneID, NEW_SCENE);
 
-					if (sceneShownMap.containsKey(sceneID)) sceneShownMap.get(sceneID).handle(new ActionEvent());
+					if (sceneShownMap.containsKey(sceneID)) {
+						sceneShownMap.get(sceneID)
+									 .handle(new ActionEvent());
+					}
 				}
-				else warnNoScene("showScene",sceneID);
+				else { warnNoScene("showScene", sceneID); }
 			}
 		});
 	}
@@ -489,16 +574,19 @@ public class Switcher {
 	 * @param height double
 	 */
 	public static void showSceneWithSize(Integer sceneID, double width, double height) {
-		Platform.runLater(()->{
+		Platform.runLater(() -> {
 			if (sceneObjectMap.containsKey(sceneID)) {
 				SceneObject sceneObject = sceneObjectMap.get(sceneID);
 				sceneObject.setStageWidth(width);
 				sceneObject.setStageHeight(height);
-				showSceneObject(sceneID,true);
+				showSceneObject(sceneID, NEW_SCENE);
 
-				if (sceneShownMap.containsKey(sceneID)) sceneShownMap.get(sceneID).handle(new ActionEvent());
+				if (sceneShownMap.containsKey(sceneID)) {
+					sceneShownMap.get(sceneID)
+								 .handle(new ActionEvent());
+				}
 			}
-			else warnNoScene("showScene",sceneID);
+			else { warnNoScene("showScene", sceneID); }
 		});
 	}
 
@@ -510,8 +598,8 @@ public class Switcher {
 	 * @return true if showing, false if not
 	 */
 	public static boolean isShowing(Integer sceneID) {
-		if (showingSceneID == null) return false;
-		else return sceneID.equals(showingSceneID);
+		if (showingSceneID == null) { return false; }
+		else { return sceneID.equals(showingSceneID); }
 	}
 
 	/**
@@ -520,7 +608,7 @@ public class Switcher {
 	 * Your control will then be hidden when Switcher has no more scenes in its history to pull up.
 	 * @return BooleanProperty
 	 */
-	public static BooleanProperty getVisibleWithHistoryProperty() { return visibleWithHistoryProperty;	}
+	public static BooleanProperty getVisibleWithHistoryProperty() { return visibleWithHistoryProperty; }
 
 	/**
 	 * Use getEnabledWithHistoryProperty to bind to a control that invokes the showLastScene method.
@@ -538,12 +626,15 @@ public class Switcher {
 	 * on a web browser.
 	 */
 	public static void showLastScene() {
-		Platform.runLater(()->{
+		Platform.runLater(() -> {
 			Integer lastSceneID = history.getLastSceneID();
 			System.out.println("LastSceneID: " + lastSceneID);
-			showSceneObject(lastSceneID,false);
+			showSceneObject(lastSceneID, PRIOR_SCENE);
 
-			if (sceneShownMap.containsKey(lastSceneID)) sceneShownMap.get(lastSceneID).handle(new ActionEvent());
+			if (sceneShownMap.containsKey(lastSceneID)) {
+				sceneShownMap.get(lastSceneID)
+							 .handle(new ActionEvent());
+			}
 		});
 	}
 
@@ -575,12 +666,19 @@ public class Switcher {
 		final double  stageHeight = (sceneObject.getHeight() == null) ? stage.getHeight() : sceneObject.getHeight();
 		final boolean customXY    = sceneObject.hasCustomXY();
 		stage.setScene(scene);
-		if (sceneObject.hideOnLostFocus()) stage.focusedProperty().addListener(lostFocusListener);
-		else stage.focusedProperty().removeListener(lostFocusListener);
+		if (sceneObject.hideOnLostFocus()) {
+			stage.focusedProperty()
+				 .addListener(lostFocusListener);
+		}
+		else {
+			stage.focusedProperty()
+				 .removeListener(lostFocusListener);
+		}
 		stage.setHeight(stageHeight);
 		stage.setWidth(stageWidth);
 		Platform.runLater(() -> {
-			Rectangle2D  screenBounds = Screen.getPrimary().getVisualBounds();
+			Rectangle2D  screenBounds = Screen.getPrimary()
+											  .getVisualBounds();
 			double       screenWidth  = screenBounds.getWidth();
 			double       screenHeight = screenBounds.getHeight();
 			final double finalX       = customXY ? stageX : (screenWidth - (screenWidth / 2) - (stageWidth / 2));
@@ -599,6 +697,13 @@ public class Switcher {
 		});
 	}
 
+	private static void hideStage(Integer sceneID) {
+		if (sceneObjectMap.containsKey(sceneID)) {
+			getSceneObject(sceneID).hideScene();
+		}
+		else { warnNoScene("hide(sceneID)", sceneID); }
+	}
+
 	private static void showStage() {
 		Platform.runLater(() -> {
 			if (Switcher.stage != null) {
@@ -608,6 +713,18 @@ public class Switcher {
 		});
 	}
 
+	private static void showStage(Integer sceneID) {
+		if (sceneObjectMap.containsKey(sceneID)) {
+			if (getSceneObject(sceneID).wasUserHidden()) {
+				getSceneObject(sceneID).showScene();
+			}
+			else { customWarning("Method throwing this message: show(sceneID)\n", "Message: sceneID (" + sceneID + ") was not hidden using the hide(sceneID) method. Use showScene(sceneID) instead as we cannot set a Scene to visible when it has never been shown on a Stage."); }
+		}
+		else { warnNoScene("show(sceneID) or unHide(sceneID)", sceneID); }
+	}
+
+	private static SceneObject getSceneObject(Integer sceneID) { return sceneObjectMap.getOrDefault(sceneID, null);}
+
 	private static void warnNoScene(String callingMethod, Integer sceneID) {
 		System.err.println("sceneID " + sceneID + " does not exist being called from method " + callingMethod);
 	}
@@ -616,29 +733,43 @@ public class Switcher {
 		System.err.println("stageID " + stageID + " does not exist being called from method " + callingMethod);
 	}
 
+	private static void customWarning(String callingMethod, String message) {
+		System.err.println(callingMethod + ":" + message);
+	}
+
 	private static Integer getRandom() {
-		int min = 1000000;
-		int max = 9999999;
-		Integer finalInt = ThreadLocalRandom.current().nextInt(min, max + 1);
+		int     min      = 1000000;
+		int     max      = 9999999;
+		Integer finalInt = ThreadLocalRandom.current()
+											.nextInt(min, max + 1);
 		while (randomInts.contains(finalInt) || stageMap.containsKey(finalInt)) {
-			finalInt = ThreadLocalRandom.current().nextInt(min, max + 1);
+			finalInt = ThreadLocalRandom.current()
+										.nextInt(min, max + 1);
 		}
 		randomInts.add(finalInt);
 		return finalInt;
+	}
+
+	private static void setPrimaryStage(Stage primaryStage) {
+		if (Switcher.firstRun) {
+			stageMap.put(defaultStageID, primaryStage);
+			Switcher.firstRun = false;
+		}
 	}
 
 	private static void addSceneObject(Integer sceneID, Integer stageID, Parent parent, Double width, Double height, Scene scene) {
 		if (Switcher.firstRun) {
 			if (!stageMap.containsKey(defaultStageID)) stageMap.put(defaultStageID, new Stage());
 			stageVisibleProperty.addListener((observable, oldValue, newValue) -> {
-				if (newValue) showStage();
-				else hideStage();
+				if (newValue) { showStage(); }
+				else { hideStage(); }
 			});
 			Switcher.firstRun = false;
 		}
-		if (parent == null) sceneObjectMap.put(sceneID, new SceneObject(stageID, scene, width, height));
-		else sceneObjectMap.put(sceneID, new SceneObject(stageID, parent, width, height));
-		sceneObjectMap.get(sceneID).setHiddenOnLostFocus(Switcher.hideSceneOnLostFocusProperty.getValue());
+		if (parent == null) { sceneObjectMap.put(sceneID, new SceneObject(stageID, scene, width, height)); }
+		else { sceneObjectMap.put(sceneID, new SceneObject(stageID, parent, width, height)); }
+		sceneObjectMap.get(sceneID)
+					  .setHiddenOnLostFocus(Switcher.hideSceneOnLostFocusProperty.getValue());
 	}
 
 	private static void checkForIDConflict(Integer stageID) {
@@ -653,8 +784,8 @@ public class Switcher {
 	private static final ChangeListener<Boolean> lostFocusListener = new ChangeListener<Boolean>() {
 		@Override
 		public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-			if (!newValue){
-				Platform.runLater(()->stage.hide());
+			if (!newValue) {
+				Platform.runLater(() -> stage.hide());
 			}
 		}
 	};
@@ -690,10 +821,11 @@ class SceneObject extends Switcher {
 	private final Scene   scene;
 	private       Double  width;
 	private       Double  height;
-	private       double  stageX   = -1.0;
-	private       double  stageY   = -1.0;
-	private       boolean customXY = false;
+	private       double  stageX     = -1.0;
+	private       double  stageY     = -1.0;
+	private       boolean customXY   = false;
 	private       boolean hideOnLostFocus;
+	private       boolean userHidden = false;
 
 	public boolean hideOnLostFocus() {
 		return hideOnLostFocus;
@@ -733,6 +865,22 @@ class SceneObject extends Switcher {
 		this.height = height;
 	}
 
+	public void hideScene() {
+		Platform.runLater(() -> Objects.requireNonNull(Switcher.getStage(this.stageID)).hide());
+		this.userHidden = true;
+	}
+
+	public void showScene() {
+		Platform.runLater(() -> {
+			Objects.requireNonNull(Switcher.getStage(this.stageID))
+				   .show();
+			Objects.requireNonNull(Switcher.getStage(this.stageID))
+				   .requestFocus();
+		});
+		this.userHidden = false;
+	}
+
+	public boolean wasUserHidden() {return this.userHidden;}
 }
 
 /**
