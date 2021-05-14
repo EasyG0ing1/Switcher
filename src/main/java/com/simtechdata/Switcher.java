@@ -65,6 +65,23 @@ import java.util.concurrent.ThreadLocalRandom;
 	}
 
 	/**
+	 * Use this method in situations where you need to assign the primaryStage
+	 * that is created at the start of your program as the default Stage
+	 * in Switcher.
+	 *
+	 * THIS MUST BE THE FIRST CALL YOU MAKE TO SWITCHER BEFORE ADDING A SCENE!
+	 *
+	 * @param primaryStage Stage - your programs primaryStage, optionally set
+	 * the stage style and modality. You can pass null for style or modality
+	 * if you only need to set one or the other.
+	 */
+	public static void init(Stage primaryStage, StageStyle initStyle, Modality initModality) {
+		if (initStyle != null) primaryStage.initStyle(initStyle);
+		if (initModality != null) primaryStage.initModality(initModality);
+		setPrimaryStage(primaryStage);
+	}
+
+	/**
 	 * Alternate for init - options never hurt anything :-)
 	 *
 	 * THIS MUST BE THE FIRST CALL YOU MAKE TO SWITCHER BEFORE ADDING A SCENE!
@@ -72,6 +89,21 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * @param primaryStage Stage - your programs primaryStage
 	 */
 	public static void setPrimary(Stage primaryStage) {
+		setPrimaryStage(primaryStage);
+	}
+
+	/**
+	 * Alternate for init - options never hurt anything :-)
+	 *
+	 * THIS MUST BE THE FIRST CALL YOU MAKE TO SWITCHER BEFORE ADDING A SCENE!
+	 *
+	 * @param primaryStage Stage - your programs primaryStage, optionally set
+	 * the stage style and modality. You can pass null for style or modality
+	 * if you only need to set one or the other.
+	 */
+	public static void setPrimary(Stage primaryStage, StageStyle initStyle, Modality initModality) {
+		if (initStyle != null) primaryStage.initStyle(initStyle);
+		if (initModality != null) primaryStage.initModality(initModality);
 		setPrimaryStage(primaryStage);
 	}
 
@@ -628,7 +660,6 @@ import java.util.concurrent.ThreadLocalRandom;
 	public static void showLastScene() {
 		Platform.runLater(() -> {
 			Integer lastSceneID = history.getLastSceneID();
-			System.out.println("LastSceneID: " + lastSceneID);
 			showSceneObject(lastSceneID, PRIOR_SCENE);
 
 			if (sceneShownMap.containsKey(lastSceneID)) {
