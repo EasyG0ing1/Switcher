@@ -456,6 +456,7 @@ import java.util.concurrent.ThreadLocalRandom;
 			lastSceneIDShowing = showingSceneID;
 			showingSceneID     = null;
 			Switcher.stageVisibleProperty.setValue(false);
+			hide(lastSceneIDShowing);
 		}
 	}
 
@@ -586,7 +587,97 @@ import java.util.concurrent.ThreadLocalRandom;
 					so.setStageY(stageY);
 					so.setCustomXY(true);
 					showSceneObject(sceneID, NEW_SCENE);
+					if (sceneShownMap.containsKey(sceneID)) {
+						sceneShownMap.get(sceneID)
+									 .handle(new ActionEvent());
+					}
+				}
+				else { warnNoScene("showScene", sceneID); }
+			}
+		});
+	}
 
+	/**
+	 * showSceneSplitX by providing its sceneID and X and Y coordinates
+	 * we will get the width of the scene and split it in half, then subtract half
+	 * from the X coordinate. This allows you to have Switcher center the scene on a point horizontally.
+	 * Switcher will remember the coordinates set so new calls to showScene will be in the same place.
+	 * @param sceneID Integer
+	 * @param stageX double
+	 * @param stageY double
+	 */
+	public static void showSceneSplitX(Integer sceneID, double stageX, double stageY) {
+		Platform.runLater(() -> {
+			if (stageX < 0 || stageY < 0) { System.err.println("Values for X and Y in showScene must not be negative"); }
+			else {
+				if (sceneObjectMap.containsKey(sceneID)) {
+					SceneObject so = sceneObjectMap.get(sceneID);
+					double halfWidth = so.getWidth() / 2;
+					so.setStageX(stageX - halfWidth);
+					so.setStageY(stageY);
+					so.setCustomXY(true);
+					showSceneObject(sceneID, NEW_SCENE);
+					if (sceneShownMap.containsKey(sceneID)) {
+						sceneShownMap.get(sceneID)
+									 .handle(new ActionEvent());
+					}
+				}
+				else { warnNoScene("showScene", sceneID); }
+			}
+		});
+	}
+
+	/**
+	 * showSceneSplitY by providing its sceneID and X and Y coordinates
+	 * we will get the height of the scene and split it in half, then subtract half
+	 * from the Y coordinate. This allows you to have Switcher center the scene on a point vertically.
+	 * Switcher will remember the coordinates set so new calls to showScene will be in the same place.
+	 * @param sceneID Integer
+	 * @param stageX double
+	 * @param stageY double
+	 */
+	public static void showSceneSplitY(Integer sceneID, double stageX, double stageY) {
+		Platform.runLater(() -> {
+			if (stageX < 0 || stageY < 0) { System.err.println("Values for X and Y in showScene must not be negative"); }
+			else {
+				if (sceneObjectMap.containsKey(sceneID)) {
+					SceneObject so = sceneObjectMap.get(sceneID);
+					double halfHeight = so.getHeight() / 2;
+					so.setStageX(stageX);
+					so.setStageY(stageY- halfHeight);
+					so.setCustomXY(true);
+					showSceneObject(sceneID, NEW_SCENE);
+					if (sceneShownMap.containsKey(sceneID)) {
+						sceneShownMap.get(sceneID)
+									 .handle(new ActionEvent());
+					}
+				}
+				else { warnNoScene("showScene", sceneID); }
+			}
+		});
+	}
+
+	/**
+	 * showSceneSplitXY by providing its sceneID and X and Y coordinates
+	 * we will get the height and width of the scene and split it in half, then subtract half
+	 * from the both coordinate. This allows you to have Switcher center the scene on a point vertically and horizontally.
+	 * Switcher will remember the coordinates set so new calls to showScene will be in the same place.
+	 * @param sceneID Integer
+	 * @param stageX double
+	 * @param stageY double
+	 */
+	public static void showSceneSplitXY(Integer sceneID, double stageX, double stageY) {
+		Platform.runLater(() -> {
+			if (stageX < 0 || stageY < 0) { System.err.println("Values for X and Y in showScene must not be negative"); }
+			else {
+				if (sceneObjectMap.containsKey(sceneID)) {
+					SceneObject so = sceneObjectMap.get(sceneID);
+					double halfHeight = so.getHeight() / 2;
+					double halfWidth = so.getWidth() / 2;
+					so.setStageX(stageX - halfWidth);
+					so.setStageY(stageY- halfHeight);
+					so.setCustomXY(true);
+					showSceneObject(sceneID, NEW_SCENE);
 					if (sceneShownMap.containsKey(sceneID)) {
 						sceneShownMap.get(sceneID)
 									 .handle(new ActionEvent());

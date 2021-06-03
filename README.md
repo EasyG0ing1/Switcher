@@ -64,21 +64,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>Switcher</artifactId>
-    <version>1.3.3</version>
+    <version>1.3.4</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'Switcher', version: 1.3.3
+compile group: 'com.simtechdata', name: 'Switcher', version: 1.3.4
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='Switcher', version=1.3.3)
+  @Grab(group='com.simtechdata', module='Switcher', version=1.3.4)
 )
 ```
 
@@ -161,6 +161,15 @@ Switcher.showSceneWithSize(sceneID, width, height);
 Switcher.showSceneWithPosition(sceneID, stageX, stageY);
 ```
 
+These methods allow you to set the position of the Scene based on the X and Y coordinates provided, then Switcher will split
+either X, Y, or both so that you can CENTER your scene based on a location as needed. Useful for placing a Scene at or around
+the current location of the mouse pointer, for example.
+
+```java
+Switcher.showSceneSplitX(sceneID, stageX, stageY);
+Switcher.showSceneSplitY(sceneID, stageX, stageY);
+Switcher.showSceneSplitXY(sceneID, stageX, stageY);
+```
 ## Trigger Methods
 You can now assign an event to a scene, so that when you call showScene, that event will trigger.
 ```java
