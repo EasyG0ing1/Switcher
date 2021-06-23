@@ -788,19 +788,10 @@ import java.util.concurrent.ThreadLocalRandom;
 		final double  stageHeight = (sceneObject.getHeight() == null) ? stage.getHeight() : sceneObject.getHeight();
 		final boolean customXY    = sceneObject.hasCustomXY();
 		stage.setScene(scene);
-		if (sceneObject.hideOnLostFocus()) {
-			stage.focusedProperty()
-				 .addListener(lostFocusListener);
-		}
-		else {
-			stage.focusedProperty()
-				 .removeListener(lostFocusListener);
-		}
 		stage.setHeight(stageHeight);
 		stage.setWidth(stageWidth);
 		Platform.runLater(() -> {
-			Rectangle2D  screenBounds = Screen.getPrimary()
-											  .getVisualBounds();
+			Rectangle2D  screenBounds = Screen.getPrimary().getVisualBounds();
 			double       screenWidth  = screenBounds.getWidth();
 			double       screenHeight = screenBounds.getHeight();
 			final double finalX       = customXY ? stageX : (screenWidth - (screenWidth / 2) - (stageWidth / 2));
@@ -840,7 +831,9 @@ import java.util.concurrent.ThreadLocalRandom;
 			if (getSceneObject(sceneID).wasUserHidden()) {
 				getSceneObject(sceneID).showScene();
 			}
-			else { customWarning("Method throwing this message: show(sceneID)\n", "Message: sceneID (" + sceneID + ") was not hidden using the hide(sceneID) method. Use showScene(sceneID) instead as we cannot set a Scene to visible when it has never been shown on a Stage."); }
+			else {
+				showSceneObject(sceneID,true);
+			}
 		}
 		else { warnNoScene("show(sceneID) or unHide(sceneID)", sceneID); }
 	}
@@ -903,15 +896,6 @@ import java.util.concurrent.ThreadLocalRandom;
 		}
 	}
 
-	private static final ChangeListener<Boolean> lostFocusListener = new ChangeListener<Boolean>() {
-		@Override
-		public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-			if (!newValue) {
-				Platform.runLater(() -> stage.hide());
-			}
-		}
-	};
-
 }
 
 
@@ -955,6 +939,14 @@ class SceneObject extends Switcher {
 
 	public void setHiddenOnLostFocus(boolean hideOnLostFocus) {
 		this.hideOnLostFocus = hideOnLostFocus;
+		if (Switcher.getStage(this.stageID) != null) {
+			if (hideOnLostFocus) {
+				Objects.requireNonNull(Switcher.getStage(this.stageID)).focusedProperty().addListener(lostFocusListener);
+			}
+			else {
+				Objects.requireNonNull(Switcher.getStage(this.stageID)).focusedProperty().removeListener(lostFocusListener);
+			}
+		}
 	}
 
 	public boolean hasCustomXY()              {return customXY;}
@@ -1003,6 +995,13 @@ class SceneObject extends Switcher {
 	}
 
 	public boolean wasUserHidden() {return this.userHidden;}
+
+	private final ChangeListener<Boolean> lostFocusListener = (observable, oldValue, newValue) -> {
+		if (!newValue) {
+			hideScene();
+		}
+	};
+
 }
 
 /**
