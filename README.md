@@ -64,21 +64,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>Switcher</artifactId>
-    <version>1.3.5</version>
+    <version>1.3.6</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'Switcher', version: 1.3.5
+compile group: 'com.simtechdata', name: 'Switcher', version: 1.3.6
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='Switcher', version=1.3.5)
+  @Grab(group='com.simtechdata', module='Switcher', version=1.3.6)
 )
 ```
 
@@ -98,7 +98,11 @@ you can bind to your controls visibleProperty or enabledProperty. Here is how yo
 
 ```java
 Button button = new Button("Previous");
-button.setOnAction(e-> Switcher.showLastScene());
+button.setOnAction(e-> 
+    if (Switcher.lastSceneAvailable() {
+      Switcher.showLastScene();
+    }
+  });
 button.disableProperty().bind(Switcher.getEnabledWithHistoryProperty());
 ```
 
@@ -285,6 +289,7 @@ If your project uses Switcher, let us know via Pull Request, and we'll feature y
 - ###Fixed:
   * **showScene()** method now consistently re-sizes the Scene being shown to it's defined parameters.<br><br>
 - ###Added:<br>
+  * **`lastSceneAvailable()`** method to use to make sure that there was a prior Scene showing - use to test before invoking showLastScene().<br>
   * **`init(primaryStage)`** method for those situations where you want to set your applications initial primaryStage as Switchers defaiult Stage.<br>
   * **`setPrimary(primaryStage)`** same as above, just a different word - options never hurt.<br>
   * **`getWindow(sceneID)`** method for a more streamlined way to attain a Scenes Window. Particularly useful for things like showDialogue() or when showing a **FileChoser** or a **DirectoryChoser**.<br>

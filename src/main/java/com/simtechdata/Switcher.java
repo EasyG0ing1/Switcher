@@ -749,15 +749,27 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * on a web browser.
 	 */
 	public static void showLastScene() {
-		Platform.runLater(() -> {
-			Integer lastSceneID = history.getLastSceneID();
-			showSceneObject(lastSceneID, PRIOR_SCENE);
+		if (history.hasHistory()) {
+			Platform.runLater(() -> {
+				Integer lastSceneID = history.getLastSceneID();
+				showSceneObject(lastSceneID, PRIOR_SCENE);
+				if (sceneShownMap.containsKey(lastSceneID)) {
+					sceneShownMap.get(lastSceneID).handle(new ActionEvent());
+				}
+			});
+		}
+	}
 
-			if (sceneShownMap.containsKey(lastSceneID)) {
-				sceneShownMap.get(lastSceneID)
-							 .handle(new ActionEvent());
-			}
-		});
+	/**
+	 * Use lastSceneAvailable to find out if there was a Scene showing that you
+	 * could display buy invoking showLastScene. Sometimes you might be in a
+	 * situation where your currently showing scene is the first one shown,
+	 * but it offers the option of going back. Use this method to make sure
+	 * you can go back.
+	 * @return true if there is a previous scene to go back to.
+	 */
+	public static boolean lastSceneAvailable() {
+		return history.hasHistory();
 	}
 
 	/**
