@@ -286,6 +286,8 @@ If your project uses Switcher, let us know via Pull Request, and we'll feature y
 
 ---
 ## 1.3 Changes and Additions
+- ###Updates:
+  * **1.3.7** - Minor updates in the way that Switcher shows a scene that was previously shown - faster display using previous coordinates.
 - ###Fixed:
   * **showScene()** method now consistently re-sizes the Scene being shown to it's defined parameters.<br><br>
 - ###Added:<br>
