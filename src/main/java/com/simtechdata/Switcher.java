@@ -34,16 +34,15 @@ import java.util.concurrent.ThreadLocalRandom;
 @SuppressWarnings({"unused", "SameParameterValue"}) public class Switcher {
 
 	private static final BooleanProperty                   stageVisibleProperty         = new SimpleBooleanProperty(true);
-	private static final BooleanProperty                   hideSceneOnLostFocusProperty = new SimpleBooleanProperty(false);
 	private static final BooleanProperty                   visibleWithHistoryProperty   = new SimpleBooleanProperty();
 	private static final BooleanProperty                   enabledWithHistoryProperty   = new SimpleBooleanProperty();
 	private static final Map<Integer, SceneObject>         sceneObjectMap               = new HashMap<>();
 	private static final Map<Integer, Stage>               stageMap                     = new HashMap<>();
-	private static final Map<Integer, EventHandler<Event>> sceneEventMap                = new HashMap<>();
 	private static final List<Integer>                     randomInts                   = new ArrayList<>();
 	private static final boolean                           NEW_SCENE                    = true;
 	private static final boolean                           PRIOR_SCENE                  = false;
 	private static       boolean                           firstRun                     = true;
+	private static       boolean                           allHiddenOnLostFocus         = false;
 	private static final HistoryKeeper                     history                      = new HistoryKeeper();
 	private static       Stage                             stage;
 	private static       Integer                           defaultStageID               = getRandom();
@@ -397,10 +396,9 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * @param hideOnLostFocus true / false
 	 */
 	public static void setHideOnLostFocus(boolean hideOnLostFocus) {
-		hideSceneOnLostFocusProperty.setValue(hideOnLostFocus);
+		allHiddenOnLostFocus = hideOnLostFocus;
 		for (Integer index : sceneObjectMap.keySet()) {
-			sceneObjectMap.get(index)
-						  .setHiddenOnLostFocus(hideOnLostFocus);
+			sceneObjectMap.get(index).setHiddenOnLostFocus(hideOnLostFocus);
 		}
 	}
 
@@ -415,8 +413,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	 */
 	public static void setHideOnLostFocus(Integer sceneID, boolean hideOnLostFocus) {
 		if (sceneObjectMap.containsKey(sceneID)) {
-			sceneObjectMap.get(sceneID)
-						  .setHiddenOnLostFocus(hideOnLostFocus);
+			sceneObjectMap.get(sceneID).setHiddenOnLostFocus(hideOnLostFocus);
 		}
 		else { warnNoScene("setHideOnLostFocus", sceneID); }
 	}
@@ -429,12 +426,18 @@ import java.util.concurrent.ThreadLocalRandom;
 	 */
 	public static Boolean sceneHiddenOnLostFocus(Integer sceneID) {
 		if (sceneObjectMap.containsKey(sceneID)) {
-			return sceneObjectMap.get(sceneID)
-								 .hideOnLostFocus();
+			return sceneObjectMap.get(sceneID).hideOnLostFocus();
 		}
 		else { warnNoScene("sceneHiddenOnLostFocus", sceneID); }
 		return null;
 	}
+
+	/**
+	 * Call allHiddenObLostFocus to find out if Switcher
+	 * is configured to hide ALL Scenes when they lose focus.
+	 * @return true/false or null if sceneID does not exist
+	 */
+	public static Boolean allHiddenOnLostFocus() { return allHiddenOnLostFocus;}
 
 	/**
 	 * Call getWindow(sceneID) to quickly get the Window of the current
@@ -448,14 +451,17 @@ import java.util.concurrent.ThreadLocalRandom;
 	}
 
 	/**
-	 * use hide() to hide the currently showing scene
+	 * @deprecated
+	 * use hide(sceneID)
 	 */
 	public static void hide() {
+		Integer sceneID = showingSceneID;
 		if (stageMap.size() == 1) {
-			lastSceneIDShowing = showingSceneID;
-			showingSceneID     = null;
-			Switcher.stageVisibleProperty.setValue(false);
-			hide(lastSceneIDShowing);
+			if(sceneID == null) {
+				sceneID = getSceneIDFromStageID(defaultStageID);
+			}
+			SceneObject scene = sceneObjectMap.get(sceneID);
+			scene.hideScene();
 		}
 	}
 
@@ -465,23 +471,29 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * @param sceneID Integer of your unique sceneID
 	 */
 	public static void hide(Integer sceneID) {
-		hideStage(sceneID);
+		hideScene(sceneID);
 	}
 
 	/**
-	 * use unHide() to reveal the scene that was hidden with the hide() method.
+	 * @deprecated
+	 * use show(sceneID) or showScene(sceneID)
 	 */
 	public static void unHide() {
 		show();
 	}
 
 	/**
-	 * use show() to reveal the scene that was hidden with the hide() method.
+	 * @deprecated
+	 * use show(sceneID) or showScene(sceneID)
 	 */
 	public static void show() {
 		if (stageMap.size() == 1) {
 			if (showingSceneID == null) showingSceneID = lastSceneIDShowing;
 			Switcher.stageVisibleProperty.setValue(true);
+		}
+		else {
+			Integer sceneID = getSceneIDFromStageID(defaultStageID);
+			showScene(sceneID);
 		}
 	}
 
@@ -491,7 +503,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * @param sceneID Integer of your unique sceneID
 	 */
 	public static void show(Integer sceneID) {
-		showStage(sceneID);
+		showScene(sceneID);
 	}
 
 	/**
@@ -504,10 +516,23 @@ import java.util.concurrent.ThreadLocalRandom;
 	}
 
 	/**
-	 * Use visible to find out if Switcher is currently showing any scene at all
-	 * @return true if Stage is currently being shown on screen
+	 * @deprecated
+	 * Use visible(stageID)
+	 * @return true if Scene is currently being shown on screen
 	 */
 	public static boolean visible() {return Switcher.stageVisibleProperty.getValue();}
+
+	/**
+	 * Use visible(stageID) to find out if Switcher is currently showing any scene at all
+	 * @return true if Scene is currently being shown on screen
+	 */
+	public static boolean visible(Integer sceneID) {
+		boolean response = false;
+		if (sceneObjectMap.containsKey(sceneID)) {
+			response = sceneObjectMap.get(sceneID).showing();
+		}
+		return response;
+	}
 
 	/**
 	 * showScene is used to display any of the scenes that
@@ -522,16 +547,15 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * @param sceneID a unique Integer - each getScene needs a unique sceneID
 	 */
 	public static void showScene(Integer sceneID) {
-		if (!isShowing(sceneID)) {
-			if (sceneObjectMap.containsKey(sceneID)) {
+		if (sceneObjectMap.containsKey(sceneID)) {
+			SceneObject scene = sceneObjectMap.get(sceneID);
+			if (!scene.showing()) {
+				scene.setCustomXY(false);
 				showSceneObject(sceneID, NEW_SCENE);
-				if (sceneEventMap.containsKey(sceneID)) {
-					sceneEventMap.get(sceneID).handle(new ActionEvent());
-				}
 			}
-			else {
-				warnNoScene("showScene", sceneID);
-			}
+		}
+		else {
+			warnNoScene("showScene", sceneID);
 		}
 	}
 
@@ -554,24 +578,33 @@ import java.util.concurrent.ThreadLocalRandom;
 				sceneObject.setStageHeight(height);
 				sceneObject.setStageX(stageX);
 				sceneObject.setStageY(stageY);
+				sceneObject.setCustomXY(true);
 				showSceneObject(sceneID, NEW_SCENE);
-				if (sceneEventMap.containsKey(sceneID)) {
-					sceneEventMap.get(sceneID).handle(new ActionEvent());
-				}
 			}
 			else { warnNoScene("showScene", sceneID); }
 		});
 	}
 
 	/**
-	 * showSceneWithPosition by providing its sceneID and optional X and Y coordinates
+	 * @deprecated
+	 * Use showSceneAt
+	 * @param sceneID Integer
+	 * @param stageX double
+	 * @param stageY double
+	 */
+	public static void showSceneWithPosition(Integer sceneID, double stageX, double stageY) {
+		showSceneAt(sceneID, stageX, stageY);
+	}
+
+	/**
+	 * showSceneAt coordinates by providing its sceneID and optional X and Y coordinates
 	 * of the Stage upper left corner. X and Y parameters will persist
 	 * in subsequent calls to showScene without the need to pass those parameters again.
 	 * @param sceneID Integer
 	 * @param stageX double
 	 * @param stageY double
 	 */
-	public static void showSceneWithPosition(Integer sceneID, double stageX, double stageY) {
+	public static void showSceneAt(Integer sceneID, double stageX, double stageY) {
 		Platform.runLater(() -> {
 			if (stageX < 0 || stageY < 0) { System.err.println("Values for X and Y in showScene must not be negative"); }
 			else {
@@ -581,9 +614,6 @@ import java.util.concurrent.ThreadLocalRandom;
 					so.setStageY(stageY);
 					so.setCustomXY(true);
 					showSceneObject(sceneID, NEW_SCENE);
-					if (sceneEventMap.containsKey(sceneID)) {
-						sceneEventMap.get(sceneID).handle(new ActionEvent());
-					}
 				}
 				else { warnNoScene("showScene", sceneID); }
 			}
@@ -611,9 +641,6 @@ import java.util.concurrent.ThreadLocalRandom;
 					so.setStageY(stageY);
 					so.setCustomXY(true);
 					showSceneObject(sceneID, NEW_SCENE);
-					if (sceneEventMap.containsKey(sceneID)) {
-						sceneEventMap.get(sceneID).handle(new ActionEvent());
-					}
 				}
 				else { warnNoScene("showScene", sceneID); }
 			}
@@ -640,9 +667,6 @@ import java.util.concurrent.ThreadLocalRandom;
 					so.setStageY(stageY- halfHeight);
 					so.setCustomXY(true);
 					showSceneObject(sceneID, NEW_SCENE);
-					if (sceneEventMap.containsKey(sceneID)) {
-						sceneEventMap.get(sceneID).handle(new ActionEvent());
-					}
 				}
 				else { warnNoScene("showScene", sceneID); }
 			}
@@ -670,9 +694,6 @@ import java.util.concurrent.ThreadLocalRandom;
 					so.setStageY(stageY- halfHeight);
 					so.setCustomXY(true);
 					showSceneObject(sceneID, NEW_SCENE);
-					if (sceneEventMap.containsKey(sceneID)) {
-						sceneEventMap.get(sceneID).handle(new ActionEvent());
-					}
 				}
 				else { warnNoScene("showScene", sceneID); }
 			}
@@ -694,10 +715,6 @@ import java.util.concurrent.ThreadLocalRandom;
 				sceneObject.setStageWidth(width);
 				sceneObject.setStageHeight(height);
 				showSceneObject(sceneID, NEW_SCENE);
-
-				if (sceneEventMap.containsKey(sceneID)) {
-					sceneEventMap.get(sceneID).handle(new ActionEvent());
-				}
 			}
 			else { warnNoScene("showScene", sceneID); }
 		});
@@ -711,8 +728,12 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * @return true if showing, false if not
 	 */
 	public static boolean isShowing(Integer sceneID) {
-		if (showingSceneID == null) { return false; }
-		else { return sceneID.equals(showingSceneID); }
+		boolean response = false;
+		if (sceneObjectMap.containsKey(sceneID)) {
+			SceneObject scene = sceneObjectMap.get(sceneID);
+			response = scene.showing();
+		}
+		return response;
 	}
 
 	/**
@@ -743,9 +764,6 @@ import java.util.concurrent.ThreadLocalRandom;
 			Platform.runLater(() -> {
 				Integer lastSceneID = history.getLastSceneID();
 				showSceneObject(lastSceneID, PRIOR_SCENE);
-				if (sceneEventMap.containsKey(lastSceneID)) {
-					sceneEventMap.get(lastSceneID).handle(new ActionEvent());
-				}
 			});
 		}
 	}
@@ -763,14 +781,36 @@ import java.util.concurrent.ThreadLocalRandom;
 	}
 
 	/**
+	 * @deprecated
+	 * Use runOnShown
+	 * @param sceneId ID of a Scene managed by Switcher
+	 * @param handler {@code EventHandler} to be invoked when Scene is shown
+	 */
+	public static void setOnShown(Integer sceneId, EventHandler<Event> handler) {
+		runOnShown(sceneId,handler);
+	}
+
+	/**
 	 * Registers an {@code EventHandler} on a Scene managed by Switcher.
 	 * When Switcher shows this scene, the {@code EventHandler} will be executed.
 	 * @param sceneId ID of a Scene managed by Switcher
 	 * @param handler {@code EventHandler} to be invoked when Scene is shown
 	 */
-	public static void setOnShown(Integer sceneId, EventHandler<Event> handler) {
+	public static void runOnShown(Integer sceneId, EventHandler<Event> handler) {
 		if (sceneObjectMap.containsKey(sceneId)) {
-			sceneEventMap.put(sceneId, handler);
+			sceneObjectMap.get(sceneId).setShowEvent(handler);
+		}
+	}
+
+	/**
+	 * Registers an {@code EventHandler} on a Scene managed by Switcher.
+	 * When Switcher hides this scene, the {@code EventHandler} will be executed.
+	 * @param sceneId ID of a Scene managed by Switcher
+	 * @param handler {@code EventHandler} to be invoked when Scene is shown
+	 */
+	public static void runOnHidden(Integer sceneId, EventHandler<Event> handler) {
+		if (sceneObjectMap.containsKey(sceneId)) {
+			sceneObjectMap.get(sceneId).setHideEvent(handler);
 		}
 	}
 
@@ -782,8 +822,8 @@ import java.util.concurrent.ThreadLocalRandom;
 		}
 		visibleWithHistoryProperty.setValue(history.hasHistory());
 		enabledWithHistoryProperty.setValue(!history.hasHistory());
-		if (sceneObject.alreadyShown()) {
-			showStage(sceneID);
+		if (sceneObject.hasAlreadyShown()) {
+			sceneObject.showScene();
 			return;
 		}
 		stage = (sceneObject.getStageID() == null) ? stageMap.get(defaultStageID) : stageMap.get(sceneObject.getStageID());
@@ -801,23 +841,18 @@ import java.util.concurrent.ThreadLocalRandom;
 		double       screenHeight = screenBounds.getHeight();
 		final double finalX       = customXY ? stageX : (screenWidth - (screenWidth / 2) - (stageWidth / 2));
 		final double finalY       = customXY ? stageY : (screenHeight - (screenHeight / 2) - (stageHeight / 2));
-		Platform.runLater(() -> {
-			stage.setX(finalX);
-			stage.setY(finalY);
-			stage.show();
-			stage.toFront();
-			stage.requestFocus();
-		});
-		sceneObject.setAlreadyShown();
+		sceneObject.setStageX(finalX);
+		sceneObject.setStageY(finalY);
+		sceneObject.showScene();
 	}
 
-	private static void hideStage() {
+	private static void hideScene() {
 		Platform.runLater(() -> {
 			if (Switcher.stage != null) Switcher.stage.hide();
 		});
 	}
 
-	private static void hideStage(Integer sceneID) {
+	private static void hideScene(Integer sceneID) {
 		if (sceneObjectMap.containsKey(sceneID)) {
 			getSceneObject(sceneID).hideScene();
 		}
@@ -835,7 +870,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 	private static void showStage(Integer sceneID) {
 		if (sceneObjectMap.containsKey(sceneID)) {
-			if (getSceneObject(sceneID).wasUserHidden() || getSceneObject(sceneID).alreadyShown()) {
+			if (getSceneObject(sceneID).wasUserHidden() || getSceneObject(sceneID).hasAlreadyShown()) {
 				getSceneObject(sceneID).showScene();
 			}
 			else {
@@ -884,14 +919,14 @@ import java.util.concurrent.ThreadLocalRandom;
 			if (!stageMap.containsKey(defaultStageID)) stageMap.put(defaultStageID, new Stage());
 			stageVisibleProperty.addListener((observable, oldValue, newValue) -> {
 				if (newValue) { showStage(); }
-				else { hideStage(); }
+				else { hideScene(); }
 			});
 			Switcher.firstRun = false;
 		}
-		if (parent == null) { sceneObjectMap.put(sceneID, new SceneObject(stageID, scene, width, height)); }
-		else { sceneObjectMap.put(sceneID, new SceneObject(stageID, parent, width, height)); }
+		if (parent == null) { sceneObjectMap.put(sceneID, new SceneObject(stageID, scene, width, height, allHiddenOnLostFocus)); }
+		else { sceneObjectMap.put(sceneID, new SceneObject(stageID, parent, width, height, allHiddenOnLostFocus)); }
 		sceneObjectMap.get(sceneID)
-					  .setHiddenOnLostFocus(Switcher.hideSceneOnLostFocusProperty.getValue());
+					  .setHiddenOnLostFocus(allHiddenOnLostFocus);
 	}
 
 	private static void checkForIDConflict(Integer stageID) {
@@ -903,6 +938,17 @@ import java.util.concurrent.ThreadLocalRandom;
 		}
 	}
 
+	private static Integer getSceneIDFromStageID(Integer stageID) {
+		Integer response = -1;
+		for (Integer sceneID : sceneObjectMap.keySet()) {
+			SceneObject scene = sceneObjectMap.get(sceneID);
+			if (scene.getStageID().equals(stageID)) {
+				response = sceneID;
+				break;
+			}
+		}
+		return response;
+	}
 }
 
 
@@ -916,18 +962,20 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 class SceneObject extends Switcher {
 
-	SceneObject(Integer stageID, Parent parent, Double width, Double height) {
+	SceneObject(Integer stageID, Parent parent, Double width, Double height, boolean hideOnLostFocus) {
 		this.stageID = stageID;
 		this.width   = width;
 		this.height  = height;
 		this.scene   = new Scene(parent);
+		this.hideOnLostFocus = hideOnLostFocus;
 	}
 
-	SceneObject(Integer stageID, Scene scene, Double width, Double height) {
+	SceneObject(Integer stageID, Scene scene, Double width, Double height, boolean hideOnLostFocus) {
 		this.stageID = stageID;
 		this.width   = width;
 		this.height  = height;
 		this.scene   = scene;
+		this.hideOnLostFocus = hideOnLostFocus;
 	}
 
 	private       Integer stageID;
@@ -940,12 +988,19 @@ class SceneObject extends Switcher {
 	private       boolean hideOnLostFocus;
 	private       boolean userHidden = false;
 	private		  boolean alreadyShown = false;
+	private		  boolean showing = false;
+	private 	  EventHandler<Event> showEvent;
+	private 	  EventHandler<Event> hideEvent;
 
-	public void clearAlreadyShown() { alreadyShown = false;}
+	public void setShowEvent(EventHandler<Event> showEvent) { this.showEvent = showEvent;}
 
-	public void setAlreadyShown() { alreadyShown = true;}
+	public void setHideEvent(EventHandler<Event> hideEvent) { this.hideEvent = hideEvent;}
 
-	public boolean alreadyShown() { return alreadyShown;}
+	public void clearAlreadyShown()                         { alreadyShown = false;}
+
+	public void setAlreadyShown()                           { alreadyShown = true;}
+
+	public boolean hasAlreadyShown()                        { return alreadyShown;}
 
 	public boolean hideOnLostFocus() {
 		return hideOnLostFocus;
@@ -996,6 +1051,10 @@ class SceneObject extends Switcher {
 	public void hideScene() {
 		Platform.runLater(() -> Objects.requireNonNull(Switcher.getStage(this.stageID)).hide());
 		this.userHidden = true;
+		this.showing = false;
+		if (hideEvent != null) {
+			hideEvent.handle(new ActionEvent());
+		}
 	}
 
 	public void showScene() {
@@ -1006,12 +1065,20 @@ class SceneObject extends Switcher {
 		Objects.requireNonNull(Switcher.getStage(this.stageID)).setScene(scene);
 		Platform.runLater(() -> {
 			Objects.requireNonNull(Switcher.getStage(this.stageID)).show();
+			Objects.requireNonNull(Switcher.getStage(this.stageID)).toFront();
 			Objects.requireNonNull(Switcher.getStage(this.stageID)).requestFocus();
 		});
 		this.userHidden = false;
+		this.showing = true;
+		alreadyShown = true;
+		if (showEvent != null) {
+			showEvent.handle(new ActionEvent());
+		}
 	}
 
 	public boolean wasUserHidden() {return this.userHidden;}
+
+	public boolean showing() {return showing;}
 
 	private final ChangeListener<Boolean> lostFocusListener = (observable, oldValue, newValue) -> {
 		if (!newValue) {

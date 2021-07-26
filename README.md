@@ -64,21 +64,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>Switcher</artifactId>
-    <version>1.3.6</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'Switcher', version: 1.3.6
+compile group: 'com.simtechdata', name: 'Switcher', version: 1.4.0
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='Switcher', version=1.3.6)
+  @Grab(group='com.simtechdata', module='Switcher', version=1.4.0)
 )
 ```
 
@@ -87,67 +87,6 @@ You can even use it from a Groovy script!
 ## Additional Features
 
 Switcher has more features, making it even more useful in your applications. For example:
-
-### History
-Switcher maintains a history of scenes as you show them. This will let you implement a control
-such as a Button, to just go back to the last shown Scene. You can continue going back to the
-first scene that you brought up. The proper way to engage this feature, is to create your
-control that will invoke showLastScene(). Because invoking the last scene will do nothing
-when you are at the first scene shown, Switcher offers two different BooleanProperties that
-you can bind to your controls visibleProperty or enabledProperty. Here is how you would set it up.
-
-```java
-Button button = new Button("Previous");
-button.setOnAction(e-> 
-    if (Switcher.lastSceneAvailable() {
-      Switcher.showLastScene();
-    }
-  });
-button.disableProperty().bind(Switcher.getEnabledWithHistoryProperty());
-```
-
-This configuration will simply disable the button when the user is at the first scene shown
-without any history in the que. Alternatively you could do this to hide the button when there
-is no history to go to.
-
-```java
-button.visibleProperty().bind(Switcher.getVisibleWithHistoryProperty());
-```
-
-### Hiding on lost focus
-
-With some application styles, it might be useful to automatically hide the scene when the user has
-clicked off of it and onto some other window or program on their computer. When you enablke this 
-feature, Switcher assigns a ChangeListener to the stage and it hides itself when it has lost focus.
-You can optionally apply this behavior to selected scenes and Switcher keeps track of all that and
-implements the behavior that you need. If you do not include a sceneID, Switcher will apply this
-feature to all scenes that you have added to Switcher.
-
-```java
-Switcher.setHideSceneOnLostFocus(true);
-Switcher.setHideSceneOnLostFocus(sceneID, true);
-```
-
-OR, you can hide the scene yourself
-
-```java
-Switcher.hide();
-```
-
-And bring it right back
-```java
-Switcher.unHide();
-```
-
-You can also find out if a specific scene is the currently displayed scene
-```java
-Switcher.isShowing(sceneID);
-```
-
-Or if Switcher is actively showing a scene at all
-```java
-Switcher.visible();
-```
 
 ### Size and Position
 By default, Switcher will always show the scene in the center of the screen. Even if the user
@@ -174,14 +113,81 @@ Switcher.showSceneSplitX(sceneID, stageX, stageY);
 Switcher.showSceneSplitY(sceneID, stageX, stageY);
 Switcher.showSceneSplitXY(sceneID, stageX, stageY);
 ```
-## Trigger Methods
+### Trigger Methods
 You can now assign an event to a scene, so that when you call showScene, that event will trigger.
 ```java
-Switcher.setOnShown(C.FORM_THREE, e->{
+Switcher.runOnShown(C.FORM_THREE, e->{
 	myCode();
 });
 ```
 
+You can also assign an event to run when a scene is hidden (either manually or by lostFocus method).
+```java
+Switcher.runOnHidden(C.FORM_THREE, e->{
+	myCode();
+});
+```
+
+### Hiding on lost focus
+
+With some application styles, it might be useful to automatically hide the scene when the user has
+clicked off of it and onto some other window or program on their computer. When you enable this
+feature, Switcher assigns a ChangeListener to the stage, and it hides itself when it has lost focus.
+You can optionally apply this behavior to specific scenes or to all Scenes by simply omitting the
+sceneID.
+
+```java
+Switcher.setHideOnLostFocus(true);
+Switcher.setHideOnLostFocus(sceneID, true);
+```
+
+To find out if a scene or all scenes are set to hide on losing focus:
+```java
+Switcher.allHiddenOnLostFocus();
+Switcher.sceneHiddenOnLostFocus(sceneID);
+```
+
+OR, you can hide the scene manually as needed
+
+```java
+Switcher.hide(sceneID);
+```
+
+And bring it right back
+```java
+Switcher.show(sceneID);
+```
+
+You can also find out if a specific scene is currently showing
+```java
+Switcher.isShowing(sceneID);
+```
+
+### History
+Switcher maintains a history of scenes as you show them. This will let you implement a control
+such as a Button, to just go back to the last shown Scene. You can continue going back to the
+first scene that you brought up. The proper way to engage this feature, is to create your
+control that will invoke showLastScene(). Because invoking the last scene will do nothing
+when you are at the first scene shown, Switcher offers two different BooleanProperties that
+you can bind to your controls visibleProperty or enabledProperty. Here is how you would set it up.
+
+```java
+Button button = new Button("Previous");
+button.setOnAction(e-> 
+    if (Switcher.lastSceneAvailable() {
+      Switcher.showLastScene();
+    }
+  });
+button.disableProperty().bind(Switcher.getEnabledWithHistoryProperty());
+```
+
+This configuration will simply disable the button when the user is at the first scene shown
+without any history in the que. Alternatively you could do this to hide the button when there
+is no history to go to.
+
+```java
+button.visibleProperty().bind(Switcher.getVisibleWithHistoryProperty());
+```
 
 ## Advanced Features
 
@@ -285,6 +291,27 @@ Any operating system that supports JavaFX will support Switcher.
 If your project uses Switcher, let us know via Pull Request, and we'll feature your project on this README.
 
 ---
+## 1.4 Update
+* **1.4.0** - Since Switcher can handle multiple Stages which can be showing more than one Scene at a time, I have deprecated all methods relating to showing and hiding scenes where a sceneID was not required. It will soon be mandatory to always provide a sceneID when showing or hiding a scene. The exception of course is when you are calling showLastScene in which case, the sceneID is already known.
+  - These methods are now deprecated with no replacements:
+    - unHide()
+    - hideStage()
+    - showStage()
+  - These methods:
+    - hide()
+    - show()
+    - visible()
+    - showSceneWithPosition(sceneID,stageX,stageY)
+    - setOnShown(event)
+  - Are deprecated and are replaced with:
+    - hide(sceneID)
+    - show(sceneID)
+    - visible(sceneID)
+    - showSceneAt(sceneID,stageX,stageY)
+    - runOnShown(event)
+  - Added:
+    - runOnHidden(event)
+    - allHiddenOnLostFocus()
 ## 1.3 Changes and Additions
 - ###Updates:
   * **1.3.7** - Minor updates in the way that Switcher shows a scene that was previously shown - faster display using previous coordinates.
