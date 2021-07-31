@@ -104,17 +104,29 @@ Switcher.showSceneWithSize(sceneID, width, height);
 Switcher.showSceneWithPosition(sceneID, stageX, stageY);
 ```
 
-These methods allow you to set the position of the Scene based on the X and Y coordinates provided, then Switcher will split
-either X, Y, or both so that you can CENTER your scene based on a location as needed. Useful for placing a Scene at or around
-the current location of the mouse pointer, for example.
+These methods allow you to set the position of the Scene based on the X and Y coordinates provided, then Switcher will split either X, Y, or both so that you can CENTER your scene based on a location as needed. Useful for placing a Scene at
+or around the current location of the mouse pointer, for example.
 
 ```java
 Switcher.showSceneSplitX(sceneID, stageX, stageY);
 Switcher.showSceneSplitY(sceneID, stageX, stageY);
 Switcher.showSceneSplitXY(sceneID, stageX, stageY);
 ```
+
+### Maximized
+
+Show your scene maximized using any one of these methods
+
+```java
+Switcher.showScene(sceneID, true);
+Switcher.showMaximized(sceneID);
+Switcher.showSceneMaximized(sceneID);
+```
+
 ### Trigger Methods
+
 You can now assign an event to a scene, so that when you call showScene, that event will trigger.
+
 ```java
 Switcher.runOnShown(C.FORM_THREE, e->{
 	myCode();
@@ -291,9 +303,16 @@ Any operating system that supports JavaFX will support Switcher.
 If your project uses Switcher, let us know via Pull Request, and we'll feature your project on this README.
 
 ---
+
 ## 1.4 Update
 
-* **1.4.1** - Since Switcher can handle multiple Stages which can be showing more than one Scene at a time, I have deprecated all methods relating to showing and hiding scenes where a sceneID was not required. It will soon be mandatory to
+* **1.4.1**
+  * Added ability to show a scene maximized - see Maximized section above.
+  * Removed deprecated methods that did not requide a sceneID
+  * Lots of under the hood code cleanup and optimization.
+
+
+* **1.4.0** - Since Switcher can handle multiple Stages which can be showing more than one Scene at a time, I have deprecated all methods relating to showing and hiding scenes where a sceneID was not required. It will soon be mandatory to
   always provide a sceneID when showing or hiding a scene. The exception of course is when you are calling showLastScene in which case, the sceneID is already known.
   - These methods are now deprecated with no replacements:
     - unHide()

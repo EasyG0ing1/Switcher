@@ -308,14 +308,22 @@ import java.util.concurrent.ThreadLocalRandom;
 	}
 
 	/**
-	 * use this method to show a hidden Scene when you have
-	 * more than one Stage set up in Switcher
+	 * Short version of showScene
 	 *
 	 * @param sceneID Integer of your unique sceneID
 	 */
 	public static void show(Integer sceneID) {showScene(sceneID);}
 
 	/**
+	 * Short version of showScene
+	 *
+	 * @param sceneID       Integer of your unique sceneID
+	 * @param showMaximized - set true to show maximized
+	 */
+	public static void show(Integer sceneID, boolean showMaximized) {showScene(sceneID, showMaximized);}
+
+	/**
+	 * Short version of showScene
 	 * show a Scene by providing its sceneID and optional X and Y coordinates
 	 * of the Stage upper left corner as well as the desired width and height
 	 * of the Stage. X, Y, width and height settings will persist in
@@ -356,6 +364,14 @@ import java.util.concurrent.ThreadLocalRandom;
 	public static void showScene(Integer sceneID) {showSceneFinal(sceneID, null, null, null, null, NEW_SCENE, false);}
 
 	/**
+	 * Same as showScene with option to show maximized
+	 *
+	 * @param sceneID       a unique Integer - each getScene needs a unique sceneID
+	 * @param showMaximized - set true to show maximized
+	 */
+	public static void showScene(Integer sceneID, boolean showMaximized) {showSceneFinal(sceneID, null, null, null, null, NEW_SCENE, showMaximized);}
+
+	/**
 	 * showScene by providing its sceneID and optional X and Y coordinates
 	 * of the Stage upper left corner as well as the desired width and height
 	 * of the Stage. X, Y, width and height settings will persist in
@@ -384,19 +400,19 @@ import java.util.concurrent.ThreadLocalRandom;
 		showSceneFinal(sceneID, width, height, null, null, NEW_SCENE, false);
 	}
 
-	private static void showSceneFinal(Integer sceneID, Double width, Double height, Double stageX, Double stageY, boolean showingNewScene, boolean showMaximized) {
-		if (sceneObjectMap.containsKey(sceneID)) {
-			SceneObject sceneObject = sceneObjectMap.get(sceneID);
-			Platform.runLater(() -> {
-				if (width != null) sceneObject.setStageWidth(width);
-				if (height != null) sceneObject.setStageHeight(height);
-				if (stageX != null) sceneObject.setStageX(stageX);
-				if (stageY != null) sceneObject.setStageY(stageY);
-				showSceneObject(sceneID, showingNewScene, showMaximized);
-			});
-		}
-		else {warnNoScene("showScene", sceneID);}
-	}
+	/**
+	 * use this method to show a scene in maximized form
+	 *
+	 * @param sceneID Integer of your unique sceneID
+	 */
+	public static void showMaximized(Integer sceneID) {showScene(sceneID, true);}
+
+	/**
+	 * use this method to show a scene in maximized form
+	 *
+	 * @param sceneID Integer of your unique sceneID
+	 */
+	public static void showSceneMaximized(Integer sceneID) {showScene(sceneID, true);}
 
 	/**
 	 * @param sceneID Integer
@@ -507,6 +523,20 @@ import java.util.concurrent.ThreadLocalRandom;
 	 */
 	public static void showSceneWithSize(Integer sceneID, Double width, Double height) {
 		showScene(sceneID, width, height);
+	}
+
+	private static void showSceneFinal(Integer sceneID, Double width, Double height, Double stageX, Double stageY, boolean showingNewScene, boolean showMaximized) {
+		if (sceneObjectMap.containsKey(sceneID)) {
+			SceneObject sceneObject = sceneObjectMap.get(sceneID);
+			Platform.runLater(() -> {
+				if (width != null) sceneObject.setStageWidth(width);
+				if (height != null) sceneObject.setStageHeight(height);
+				if (stageX != null) sceneObject.setStageX(stageX);
+				if (stageY != null) sceneObject.setStageY(stageY);
+				showSceneObject(sceneID, showingNewScene, showMaximized);
+			});
+		}
+		else {warnNoScene("showScene", sceneID);}
 	}
 
 	/**
