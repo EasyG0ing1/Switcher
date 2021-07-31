@@ -64,21 +64,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>Switcher</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'Switcher', version: 1.4.0
+compile group: 'com.simtechdata', name: 'Switcher', version: 1.4.1
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='Switcher', version=1.4.0)
+  @Grab(group='com.simtechdata', module='Switcher', version=1.4.1)
 )
 ```
 
@@ -292,7 +292,9 @@ If your project uses Switcher, let us know via Pull Request, and we'll feature y
 
 ---
 ## 1.4 Update
-* **1.4.0** - Since Switcher can handle multiple Stages which can be showing more than one Scene at a time, I have deprecated all methods relating to showing and hiding scenes where a sceneID was not required. It will soon be mandatory to always provide a sceneID when showing or hiding a scene. The exception of course is when you are calling showLastScene in which case, the sceneID is already known.
+
+* **1.4.1** - Since Switcher can handle multiple Stages which can be showing more than one Scene at a time, I have deprecated all methods relating to showing and hiding scenes where a sceneID was not required. It will soon be mandatory to
+  always provide a sceneID when showing or hiding a scene. The exception of course is when you are calling showLastScene in which case, the sceneID is already known.
   - These methods are now deprecated with no replacements:
     - unHide()
     - hideStage()
