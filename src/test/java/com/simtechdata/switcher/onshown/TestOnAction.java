@@ -33,7 +33,7 @@ public class TestOnAction extends Application {
         buttonChangeScene.setOnAction(e -> Switcher.showScene(2));
 
         // Register an EventHandler with Switcher for Scene 2
-        Switcher.setOnShown(2, e -> {
+        Switcher.runOnShown(2, e -> {
             System.out.println("Scene2 was shown.");
             Switcher.getDefaultStage().setTitle("Scene 2");
         });

@@ -24,6 +24,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.*;
+
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -33,27 +34,27 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 @SuppressWarnings({"unused", "SameParameterValue"}) public class Switcher {
 
-	private static final BooleanProperty                   stageVisibleProperty         = new SimpleBooleanProperty(true);
-	private static final BooleanProperty                   visibleWithHistoryProperty   = new SimpleBooleanProperty();
-	private static final BooleanProperty                   enabledWithHistoryProperty   = new SimpleBooleanProperty();
-	private static final Map<Integer, SceneObject>         sceneObjectMap               = new HashMap<>();
-	private static final Map<Integer, Stage>               stageMap                     = new HashMap<>();
-	private static final List<Integer>                     randomInts                   = new ArrayList<>();
-	private static final boolean                           NEW_SCENE                    = true;
-	private static final boolean                           PRIOR_SCENE                  = false;
-	private static       boolean                           firstRun                     = true;
-	private static       boolean                           allHiddenOnLostFocus         = false;
-	private static final HistoryKeeper                     history                      = new HistoryKeeper();
-	private static       Stage                             stage;
-	private static       Integer                           defaultStageID               = getRandom();
-	private static       Integer                           showingSceneID;
-	private static       Integer                           lastSceneIDShowing;
+	private static final BooleanProperty           stageVisibleProperty       = new SimpleBooleanProperty(true);
+	private static final BooleanProperty           visibleWithHistoryProperty = new SimpleBooleanProperty();
+	private static final BooleanProperty           enabledWithHistoryProperty = new SimpleBooleanProperty();
+	private static final Map<Integer, SceneObject> sceneObjectMap             = new HashMap<>();
+	private static final Map<Integer, Stage>       stageMap                   = new HashMap<>();
+	private static final List<Integer>             randomInts                 = new ArrayList<>();
+	private static final boolean                   NEW_SCENE                  = true;
+	private static final boolean                   PRIOR_SCENE                = false;
+	private static final HistoryKeeper             history                    = new HistoryKeeper();
+	private static       boolean                   firstRun                   = true;
+	private static       boolean                   allHiddenOnLostFocus       = false;
+	private static       Stage                     stage;
+	private static       Integer                   defaultStageID             = getRandom();
+	private static       Integer                   showingSceneID;
+	private static       Integer                   lastSceneIDShowing;
 
 	/**
 	 * Use this method in situations where you need to assign the primaryStage
 	 * that is created at the start of your program as the default Stage
 	 * in Switcher.
-	 *
+	 * <p>
 	 * THIS MUST BE THE FIRST CALL YOU MAKE TO SWITCHER BEFORE ADDING A SCENE!
 	 *
 	 * @param primaryStage Stage - your programs primaryStage
@@ -66,12 +67,12 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * Use this method in situations where you need to assign the primaryStage
 	 * that is created at the start of your program as the default Stage
 	 * in Switcher.
-	 *
+	 * <p>
 	 * THIS MUST BE THE FIRST CALL YOU MAKE TO SWITCHER BEFORE ADDING A SCENE!
 	 *
 	 * @param primaryStage Stage - your programs primaryStage, optionally set
-	 * the stage style and modality. You can pass null for style or modality
-	 * if you only need to set one or the other.
+	 *                     the stage style and modality. You can pass null for style or modality
+	 *                     if you only need to set one or the other.
 	 */
 	public static void init(Stage primaryStage, StageStyle initStyle, Modality initModality) {
 		if (initStyle != null) primaryStage.initStyle(initStyle);
@@ -81,7 +82,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 	/**
 	 * Alternate for init - options never hurt anything :-)
-	 *
+	 * <p>
 	 * THIS MUST BE THE FIRST CALL YOU MAKE TO SWITCHER BEFORE ADDING A SCENE!
 	 *
 	 * @param primaryStage Stage - your programs primaryStage
@@ -92,12 +93,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 	/**
 	 * Alternate for init - options never hurt anything :-)
-	 *
+	 * <p>
 	 * THIS MUST BE THE FIRST CALL YOU MAKE TO SWITCHER BEFORE ADDING A SCENE!
 	 *
 	 * @param primaryStage Stage - your programs primaryStage, optionally set
-	 * the stage style and modality. You can pass null for style or modality
-	 * if you only need to set one or the other.
+	 *                     the stage style and modality. You can pass null for style or modality
+	 *                     if you only need to set one or the other.
 	 */
 	public static void setPrimary(Stage primaryStage, StageStyle initStyle, Modality initModality) {
 		if (initStyle != null) primaryStage.initStyle(initStyle);
@@ -144,14 +145,14 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * Switcher.showScene(C.SCENE_TWO);
 	 *
 	 * </pre>
-	 *
+	 * <p>
 	 * I doesn't matter if you accidentally include the style and modal again after you've
 	 * defined the stage once, Switcher will not overwrite a Stage when it's ID already exists.
 	 *
 	 * @param sceneID a unique Integer that you provide and maintain in your code
-	 * @param root a Parent such as an AnchorPane or a VBox - it is the foundation of the Stage
-	 * @param width Double - sets the stage width for this getScene.
-	 * @param height Double - sets the stage height for this getScene
+	 * @param root    a Parent such as an AnchorPane or a VBox - it is the foundation of the Stage
+	 * @param width   Double - sets the stage width for this getScene.
+	 * @param height  Double - sets the stage height for this getScene
 	 */
 	public static void addScene(Integer sceneID, Parent root, double width, double height) {
 		addSceneObject(sceneID, null, root, width, height, null);
@@ -221,24 +222,26 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * before adding scenes to assign to it. <BR><BR>
 	 * Alternatively, you can later re-assign a scene to a stageID by using the
 	 * assignSceneToStage method.
+	 *
 	 * @param stageID a unique Integer
-	 * @param stage a Stage that you configured
+	 * @param stage   a Stage that you configured
 	 */
 	public static void addStage(Integer stageID, Stage stage) {
 		checkForIDConflict(stageID);
 		if (!stageMap.containsKey(stageID)) {
 			stageMap.put(stageID, stage);
 		}
-		else { System.err.println("addStage - stageID " + stageID + " ALREADY EXIST USE removeStage first"); }
+		else {System.err.println("addStage - stageID " + stageID + " ALREADY EXIST USE removeStage first");}
 	}
 
 	/**
 	 * Use removeScene to take a sceneID out of Switcher if needed.
+	 *
 	 * @param sceneID a unique Integer
 	 */
 	public static void removeScene(Integer sceneID) {
-		if (sceneObjectMap.containsKey(sceneID)) { sceneObjectMap.remove(sceneID); }
-		else { warnNoScene("removeScene", sceneID); }
+		if (sceneObjectMap.containsKey(sceneID)) {sceneObjectMap.remove(sceneID);}
+		else {warnNoScene("removeScene", sceneID);}
 	}
 
 	/**
@@ -247,6 +250,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * are assigned to it, causing them to be shown on the
 	 * default Stage if they are not re assigned to a different
 	 * stageID using the assignSceneToStage method.
+	 *
 	 * @param stageID a unique Integer
 	 */
 	public static void removeStage(Integer stageID) {
@@ -261,7 +265,7 @@ import java.util.concurrent.ThreadLocalRandom;
 				}
 			}
 		}
-		else { warnNoStage("removeStage", stageID); }
+		else {warnNoStage("removeStage", stageID);}
 	}
 
 	/**
@@ -269,6 +273,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * to a Stage that you also have already added, then assignSceneToStage is
 	 * how you do it. If the Scene was assigned to a different stage before,
 	 * then that stages ID will be replaced with this one.
+	 *
 	 * @param sceneID Integer containing the Scenes ID
 	 * @param stageID Integer containing the Stages ID
 	 */
@@ -277,7 +282,7 @@ import java.util.concurrent.ThreadLocalRandom;
 			sceneObjectMap.get(sceneID)
 						  .setStageID(stageID);
 		}
-		else { warnNoScene("assignSceneToStage", sceneID); }
+		else {warnNoScene("assignSceneToStage", sceneID);}
 	}
 
 	/**
@@ -287,7 +292,8 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * with this method.<BR><BR>If you only need to set one of the two parameters,
 	 * pass null into the other one and the Stage will not be configured
 	 * with that option.
-	 * @param initStyle your StageStyle
+	 *
+	 * @param initStyle    your StageStyle
 	 * @param initModality your Modality
 	 */
 	public static void configureDefaultStage(final StageStyle initStyle, final Modality initModality) {
@@ -305,186 +311,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	}
 
 	/**
-	 * use getStage to gain access to any of the stages that you have
-	 * in Switcher so that you can configure any option of the stage
-	 * that is not offered with Switcher. if you pass null you will
-	 * be given the default stage that applies to any scene that has
-	 * not been assigned a stage. You can optionally use the getDefaultStage()
-	 * method for the same result.
-	 * @param stageID unique stageID
-	 * @return Stage of given stageID or the default stage if stageID is null
-	 * Switcher will return null if the stageID does not exist.
-	 */
-	public static Stage getStage(Integer stageID) {
-		if (stageID == null) return getDefaultStage();
-		if (stageMap.containsKey(stageID)) return stageMap.get(stageID);
-		warnNoStage("getStage", stageID);
-		return null;
-	}
-
-	/**
-	 * use getStageForScene to pull the stage for any of your scenes
-	 * so that you can modify it as needed.
-	 *
-	 * Here is one example of how this could be used::
-	 * getStageForScene(sceneID).setTitle("Stage Title");
-	 *
-	 * @param sceneID the unique ID of your scene
-	 * @return Stage assigned to that Scene
-	 */
-	public static Stage getStageForScene(Integer sceneID) {
-		Stage requestedStage = null;
-		for (Integer sID : sceneObjectMap.keySet()) {
-			Integer sceneStageID = sceneObjectMap.get(sID)
-												 .getStageID();
-			if (sID.equals(sceneID)) requestedStage = stageMap.get(sceneStageID);
-		}
-		return requestedStage;
-	}
-
-	/**
-	 * use setDefaultStage to assign your own stage to Switcher, for
-	 * example, in your Main method, you might want to assign the initial
-	 * primaryStage to Switcher so that it integrates better with other
-	 * libraries you might be using such as FXTrayIcon or any libraries
-	 * that use the defaultStage.
-	 *
-	 * This needs to be the first Switcher command you execute before
-	 * adding any scenes or Switcher will create it's own default Stage.
-	 * @param stage is the stage you are assigning as default.
-	 */
-	public static void setDefaultStage(Stage stage) {
-		if (stageMap.containsKey(defaultStageID)) { System.err.println("Switcher already has a default Stage, this must be the first command executed in your code."); }
-		else { stageMap.put(defaultStageID, stage); }
-	}
-
-	/**
-	 * use setDefaultStage to get access to the default stage
-	 * This would mainly be used so that you can set the
-	 * setOnCloseRequest option of the stage to have it
-	 * call whatever method you want when the stage is asked to close.
-	 * @return default Stage or null if you have not added any scenes.
-	 */
-	public static Stage getDefaultStage() {
-		if (!stageMap.containsKey(defaultStageID)) stageMap.put(defaultStageID, new Stage());
-		return stageMap.get(defaultStageID);
-	}
-
-	/**
-	 * Use getScene to gain access to the Scene that Switcher creates
-	 * so that you can make changes to it as needed
-	 * @param sceneID the sceneID of the scene you want
-	 * @return Will return null if the sceneID does not exist
-	 */
-	public static Scene getScene(Integer sceneID) {
-		if (sceneObjectMap.containsKey(sceneID)) {
-			return sceneObjectMap.get(sceneID)
-								 .getScene();
-		}
-		else {
-			warnNoScene("getScene", sceneID);
-			return null;
-		}
-	}
-
-	/**
-	 * setHideOnLostFocus lets you configure Switcher so that when the user
-	 * clicks somewhere else on their desktop, the scene will hide itself.
-	 * If you just pass in true or false, the behavior automatically applies
-	 * to all scenes that you have inside Switcher. You can optionally pass
-	 * the sceneID into the method to apply the behavior to specific scenes.
-	 * @param hideOnLostFocus true / false
-	 */
-	public static void setHideOnLostFocus(boolean hideOnLostFocus) {
-		allHiddenOnLostFocus = hideOnLostFocus;
-		for (Integer index : sceneObjectMap.keySet()) {
-			sceneObjectMap.get(index).setHiddenOnLostFocus(hideOnLostFocus);
-		}
-	}
-
-	/**
-	 * setHideOnLostFocus lets you configure Switcher so that when the user
-	 * clicks somewhere else on their desktop, the scene will hide itself.
-	 * If you just pass in true or false, the behavior automatically applies
-	 * to all scenes that you have inside Switcher. You can optionally pass
-	 * the sceneID into the method to apply the behavior to specific scenes.
-	 * @param sceneID unique sceneID Integer
-	 * @param hideOnLostFocus true / false
-	 */
-	public static void setHideOnLostFocus(Integer sceneID, boolean hideOnLostFocus) {
-		if (sceneObjectMap.containsKey(sceneID)) {
-			sceneObjectMap.get(sceneID).setHiddenOnLostFocus(hideOnLostFocus);
-		}
-		else { warnNoScene("setHideOnLostFocus", sceneID); }
-	}
-
-	/**
-	 * Call sceneHiddenOnLostFocus to find out if Switcher is configured to
-	 * hide a specific scene when it loses focus.
-	 * @param sceneID unique sceneID Integer
-	 * @return true/false or null if sceneID does not exist
-	 */
-	public static Boolean sceneHiddenOnLostFocus(Integer sceneID) {
-		if (sceneObjectMap.containsKey(sceneID)) {
-			return sceneObjectMap.get(sceneID).hideOnLostFocus();
-		}
-		else { warnNoScene("sceneHiddenOnLostFocus", sceneID); }
-		return null;
-	}
-
-	/**
-	 * Call allHiddenObLostFocus to find out if Switcher
-	 * is configured to hide ALL Scenes when they lose focus.
-	 * @return true/false or null if sceneID does not exist
-	 */
-	public static Boolean allHiddenOnLostFocus() { return allHiddenOnLostFocus;}
-
-	/**
-	 * Call getWindow(sceneID) to quickly get the Window of the current
-	 * Scene on stage.
-	 * @param sceneID unique sceneID Integer
-	 * @return Window of the current Scene
-	 */
-	public static Window getWindow(Integer sceneID) {
-		return Objects.requireNonNull(getScene(sceneID))
-					  .getWindow();
-	}
-
-	/**
-	 * @deprecated
-	 * use hide(sceneID)
-	 */
-	public static void hide() {
-		Integer sceneID = showingSceneID;
-		if (stageMap.size() == 1) {
-			if(sceneID == null) {
-				sceneID = getSceneIDFromStageID(defaultStageID);
-			}
-			SceneObject scene = sceneObjectMap.get(sceneID);
-			scene.hideScene();
-		}
-	}
-
-	/**
-	 * use this method to hide a Scene when you have more than
-	 * one Stage set up in Switcher.
-	 * @param sceneID Integer of your unique sceneID
-	 */
-	public static void hide(Integer sceneID) {
-		hideScene(sceneID);
-	}
-
-	/**
-	 * @deprecated
-	 * use show(sceneID) or showScene(sceneID)
-	 */
-	public static void unHide() {
-		show();
-	}
-
-	/**
-	 * @deprecated
-	 * use show(sceneID) or showScene(sceneID)
+	 * @deprecated use show(sceneID) or showScene(sceneID)
 	 */
 	public static void show() {
 		if (stageMap.size() == 1) {
@@ -500,6 +327,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	/**
 	 * use this method to show a hidden Scene when you have
 	 * more than one Stage set up in Switcher
+	 *
 	 * @param sceneID Integer of your unique sceneID
 	 */
 	public static void show(Integer sceneID) {
@@ -507,32 +335,29 @@ import java.util.concurrent.ThreadLocalRandom;
 	}
 
 	/**
-	 * use this method to show a hidden Scene when you have
-	 * more than one Stage set up in Switcher
-	 * @param sceneID Integer of your unique sceneID
+	 * show a Scene by providing its sceneID and optional X and Y coordinates
+	 * of the Stage upper left corner as well as the desired width and height
+	 * of the Stage. X, Y, width and height settings will persist in
+	 * subsequent calls to showScene without the need to pass those parameters again.
+	 *
+	 * @param sceneID Integer
+	 * @param width   double
+	 * @param height  double
+	 * @param stageX  double
+	 * @param stageY  double
 	 */
-	public static void unHide(Integer sceneID) {
-		show(sceneID);
-	}
+	public static void show(Integer sceneID, double width, double height, double stageX, double stageY) {showScene(sceneID, width, height, stageX, stageY);}
 
 	/**
-	 * @deprecated
-	 * Use visible(stageID)
-	 * @return true if Scene is currently being shown on screen
+	 * show a Scene by providing its sceneID and optional width and height
+	 * values. There settings will persist in subsequent calls to showScene without
+	 * the need to pass those parameters again.
+	 *
+	 * @param sceneID Integer
+	 * @param width   double
+	 * @param height  double
 	 */
-	public static boolean visible() {return Switcher.stageVisibleProperty.getValue();}
-
-	/**
-	 * Use visible(stageID) to find out if Switcher is currently showing any scene at all
-	 * @return true if Scene is currently being shown on screen
-	 */
-	public static boolean visible(Integer sceneID) {
-		boolean response = false;
-		if (sceneObjectMap.containsKey(sceneID)) {
-			response = sceneObjectMap.get(sceneID).showing();
-		}
-		return response;
-	}
+	public static void show(Integer sceneID, double width, double height) {showScene(sceneID, width, height);}
 
 	/**
 	 * showScene is used to display any of the scenes that
@@ -544,6 +369,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * if you did not define those parameters in the addScene method.<BR><BR>
 	 * <strong>X, Y, width and height will persist in subsequent calls to showScene
 	 * without the need to pass those parameters again.</strong>
+	 *
 	 * @param sceneID a unique Integer - each getScene needs a unique sceneID
 	 */
 	public static void showScene(Integer sceneID) {
@@ -564,11 +390,12 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * of the Stage upper left corner as well as the desired width and height
 	 * of the Stage. X, Y, width and height settings will persist in
 	 * subsequent calls to showScene without the need to pass those parameters again.
+	 *
 	 * @param sceneID Integer
-	 * @param width double
-	 * @param height double
-	 * @param stageX double
-	 * @param stageY double
+	 * @param width   double
+	 * @param height  double
+	 * @param stageX  double
+	 * @param stageY  double
 	 */
 	public static void showScene(Integer sceneID, double width, double height, double stageX, double stageY) {
 		Platform.runLater(() -> {
@@ -581,16 +408,36 @@ import java.util.concurrent.ThreadLocalRandom;
 				sceneObject.setCustomXY(true);
 				showSceneObject(sceneID, NEW_SCENE);
 			}
-			else { warnNoScene("showScene", sceneID); }
+			else {warnNoScene("showScene", sceneID);}
 		});
 	}
 
 	/**
-	 * @deprecated
-	 * Use showSceneAt
+	 * showScene by providing its sceneID and optional width and height
+	 * values. There settings will persist in subsequent calls to showScene without
+	 * the need to pass those parameters again.
+	 *
 	 * @param sceneID Integer
-	 * @param stageX double
-	 * @param stageY double
+	 * @param width   double
+	 * @param height  double
+	 */
+	public static void showScene(Integer sceneID, double width, double height) {
+		Platform.runLater(() -> {
+			if (sceneObjectMap.containsKey(sceneID)) {
+				SceneObject sceneObject = sceneObjectMap.get(sceneID);
+				sceneObject.setStageWidth(width);
+				sceneObject.setStageHeight(height);
+				showSceneObject(sceneID, NEW_SCENE);
+			}
+			else {warnNoScene("showScene", sceneID);}
+		});
+	}
+
+	/**
+	 * @param sceneID Integer
+	 * @param stageX  double
+	 * @param stageY  double
+	 * @deprecated Use showSceneAt
 	 */
 	public static void showSceneWithPosition(Integer sceneID, double stageX, double stageY) {
 		showSceneAt(sceneID, stageX, stageY);
@@ -600,13 +447,14 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * showSceneAt coordinates by providing its sceneID and optional X and Y coordinates
 	 * of the Stage upper left corner. X and Y parameters will persist
 	 * in subsequent calls to showScene without the need to pass those parameters again.
+	 *
 	 * @param sceneID Integer
-	 * @param stageX double
-	 * @param stageY double
+	 * @param stageX  double
+	 * @param stageY  double
 	 */
 	public static void showSceneAt(Integer sceneID, double stageX, double stageY) {
 		Platform.runLater(() -> {
-			if (stageX < 0 || stageY < 0) { System.err.println("Values for X and Y in showScene must not be negative"); }
+			if (stageX < 0 || stageY < 0) {System.err.println("Values for X and Y in showScene must not be negative");}
 			else {
 				if (sceneObjectMap.containsKey(sceneID)) {
 					SceneObject so = sceneObjectMap.get(sceneID);
@@ -615,7 +463,7 @@ import java.util.concurrent.ThreadLocalRandom;
 					so.setCustomXY(true);
 					showSceneObject(sceneID, NEW_SCENE);
 				}
-				else { warnNoScene("showScene", sceneID); }
+				else {warnNoScene("showScene", sceneID);}
 			}
 		});
 	}
@@ -625,13 +473,14 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * we will get the width of the scene and split it in half, then subtract half
 	 * from the X coordinate. This allows you to have Switcher center the scene on a point horizontally.
 	 * Switcher will remember the coordinates set so new calls to showScene will be in the same place.
+	 *
 	 * @param sceneID Integer
-	 * @param stageX double
-	 * @param stageY double
+	 * @param stageX  double
+	 * @param stageY  double
 	 */
 	public static void showSceneSplitX(Integer sceneID, double stageX, double stageY) {
 		Platform.runLater(() -> {
-			if (stageX < 0 || stageY < 0) { System.err.println("Values for X and Y in showScene must not be negative"); }
+			if (stageX < 0 || stageY < 0) {System.err.println("Values for X and Y in showScene must not be negative");}
 			else {
 				if (sceneObjectMap.containsKey(sceneID)) {
 					SceneObject so = sceneObjectMap.get(sceneID);
@@ -642,7 +491,7 @@ import java.util.concurrent.ThreadLocalRandom;
 					so.setCustomXY(true);
 					showSceneObject(sceneID, NEW_SCENE);
 				}
-				else { warnNoScene("showScene", sceneID); }
+				else {warnNoScene("showScene", sceneID);}
 			}
 		});
 	}
@@ -652,23 +501,24 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * we will get the height of the scene and split it in half, then subtract half
 	 * from the Y coordinate. This allows you to have Switcher center the scene on a point vertically.
 	 * Switcher will remember the coordinates set so new calls to showScene will be in the same place.
+	 *
 	 * @param sceneID Integer
-	 * @param stageX double
-	 * @param stageY double
+	 * @param stageX  double
+	 * @param stageY  double
 	 */
 	public static void showSceneSplitY(Integer sceneID, double stageX, double stageY) {
 		Platform.runLater(() -> {
-			if (stageX < 0 || stageY < 0) { System.err.println("Values for X and Y in showScene must not be negative"); }
+			if (stageX < 0 || stageY < 0) {System.err.println("Values for X and Y in showScene must not be negative");}
 			else {
 				if (sceneObjectMap.containsKey(sceneID)) {
-					SceneObject so = sceneObjectMap.get(sceneID);
-					double halfHeight = so.getHeight() / 2;
+					SceneObject so         = sceneObjectMap.get(sceneID);
+					double      halfHeight = so.getHeight() / 2;
 					so.setStageX(stageX);
-					so.setStageY(stageY- halfHeight);
+					so.setStageY(stageY - halfHeight);
 					so.setCustomXY(true);
 					showSceneObject(sceneID, NEW_SCENE);
 				}
-				else { warnNoScene("showScene", sceneID); }
+				else {warnNoScene("showScene", sceneID);}
 			}
 		});
 	}
@@ -678,52 +528,259 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * we will get the height and width of the scene and split it in half, then subtract half
 	 * from the both coordinate. This allows you to have Switcher center the scene on a point vertically and horizontally.
 	 * Switcher will remember the coordinates set so new calls to showScene will be in the same place.
+	 *
 	 * @param sceneID Integer
-	 * @param stageX double
-	 * @param stageY double
+	 * @param stageX  double
+	 * @param stageY  double
 	 */
 	public static void showSceneSplitXY(Integer sceneID, double stageX, double stageY) {
 		Platform.runLater(() -> {
-			if (stageX < 0 || stageY < 0) { System.err.println("Values for X and Y in showScene must not be negative"); }
+			if (stageX < 0 || stageY < 0) {System.err.println("Values for X and Y in showScene must not be negative");}
 			else {
 				if (sceneObjectMap.containsKey(sceneID)) {
-					SceneObject so = sceneObjectMap.get(sceneID);
-					double halfHeight = so.getHeight() / 2;
-					double halfWidth = so.getWidth() / 2;
+					SceneObject so         = sceneObjectMap.get(sceneID);
+					double      halfHeight = so.getHeight() / 2;
+					double      halfWidth  = so.getWidth() / 2;
 					so.setStageX(stageX - halfWidth);
-					so.setStageY(stageY- halfHeight);
+					so.setStageY(stageY - halfHeight);
 					so.setCustomXY(true);
 					showSceneObject(sceneID, NEW_SCENE);
 				}
-				else { warnNoScene("showScene", sceneID); }
+				else {warnNoScene("showScene", sceneID);}
 			}
 		});
 	}
 
 	/**
-	 * showSceneWithSize by providing its sceneID and optional width and height
-	 * values. There settings will persist in subsequent calls to showScene without
-	 * the need to pass those parameters again.
 	 * @param sceneID Integer
-	 * @param width double
-	 * @param height double
+	 * @param width   double
+	 * @param height  double
+	 * @deprecated use showScene(sceneID, width, height)
 	 */
 	public static void showSceneWithSize(Integer sceneID, double width, double height) {
-		Platform.runLater(() -> {
-			if (sceneObjectMap.containsKey(sceneID)) {
-				SceneObject sceneObject = sceneObjectMap.get(sceneID);
-				sceneObject.setStageWidth(width);
-				sceneObject.setStageHeight(height);
-				showSceneObject(sceneID, NEW_SCENE);
+		showScene(sceneID, width, height);
+	}
+
+	/**
+	 * use getStage to gain access to any of the stages that you have
+	 * in Switcher so that you can configure any option of the stage
+	 * that is not offered with Switcher. if you pass null you will
+	 * be given the default stage that applies to any scene that has
+	 * not been assigned a stage. You can optionally use the getDefaultStage()
+	 * method for the same result.
+	 *
+	 * @param stageID unique stageID
+	 * @return Stage of given stageID or the default stage if stageID is null
+	 * Switcher will return null if the stageID does not exist.
+	 */
+	public static Stage getStage(Integer stageID) {
+		if (stageID == null) return getDefaultStage();
+		if (stageMap.containsKey(stageID)) return stageMap.get(stageID);
+		warnNoStage("getStage", stageID);
+		return null;
+	}
+
+	/**
+	 * use getStageForScene to pull the stage for any of your scenes
+	 * so that you can modify it as needed.
+	 * <p>
+	 * Here is one example of how this could be used::
+	 * getStageForScene(sceneID).setTitle("Stage Title");
+	 *
+	 * @param sceneID the unique ID of your scene
+	 * @return Stage assigned to that Scene
+	 */
+	public static Stage getStageForScene(Integer sceneID) {
+		Stage requestedStage = null;
+		for (Integer sID : sceneObjectMap.keySet()) {
+			Integer sceneStageID = sceneObjectMap.get(sID)
+												 .getStageID();
+			if (sID.equals(sceneID)) requestedStage = stageMap.get(sceneStageID);
+		}
+		return requestedStage;
+	}
+
+	/**
+	 * use setDefaultStage to get access to the default stage
+	 * This would mainly be used so that you can set the
+	 * setOnCloseRequest option of the stage to have it
+	 * call whatever method you want when the stage is asked to close.
+	 *
+	 * @return default Stage or null if you have not added any scenes.
+	 */
+	public static Stage getDefaultStage() {
+		if (!stageMap.containsKey(defaultStageID)) stageMap.put(defaultStageID, new Stage());
+		return stageMap.get(defaultStageID);
+	}
+
+	/**
+	 * use setDefaultStage to assign your own stage to Switcher, for
+	 * example, in your Main method, you might want to assign the initial
+	 * primaryStage to Switcher so that it integrates better with other
+	 * libraries you might be using such as FXTrayIcon or any libraries
+	 * that use the defaultStage.
+	 * <p>
+	 * This needs to be the first Switcher command you execute before
+	 * adding any scenes or Switcher will create it's own default Stage.
+	 *
+	 * @param stage is the stage you are assigning as default.
+	 */
+	public static void setDefaultStage(Stage stage) {
+		if (stageMap.containsKey(defaultStageID)) {System.err.println("Switcher already has a default Stage, this must be the first command executed in your code.");}
+		else {stageMap.put(defaultStageID, stage);}
+	}
+
+	/**
+	 * Use getScene to gain access to the Scene that Switcher creates
+	 * so that you can make changes to it as needed
+	 *
+	 * @param sceneID the sceneID of the scene you want
+	 * @return Will return null if the sceneID does not exist
+	 */
+	public static Scene getScene(Integer sceneID) {
+		if (sceneObjectMap.containsKey(sceneID)) {
+			return sceneObjectMap.get(sceneID)
+								 .getScene();
+		}
+		else {
+			warnNoScene("getScene", sceneID);
+			return null;
+		}
+	}
+
+	/**
+	 * setHideOnLostFocus lets you configure Switcher so that when the user
+	 * clicks somewhere else on their desktop, the scene will hide itself.
+	 * If you just pass in true or false, the behavior automatically applies
+	 * to all scenes that you have inside Switcher. You can optionally pass
+	 * the sceneID into the method to apply the behavior to specific scenes.
+	 *
+	 * @param hideOnLostFocus true / false
+	 */
+	public static void setHideOnLostFocus(boolean hideOnLostFocus) {
+		allHiddenOnLostFocus = hideOnLostFocus;
+		for (Integer index : sceneObjectMap.keySet()) {
+			sceneObjectMap.get(index).setHiddenOnLostFocus(hideOnLostFocus);
+		}
+	}
+
+	/**
+	 * setHideOnLostFocus lets you configure Switcher so that when the user
+	 * clicks somewhere else on their desktop, the scene will hide itself.
+	 * If you just pass in true or false, the behavior automatically applies
+	 * to all scenes that you have inside Switcher. You can optionally pass
+	 * the sceneID into the method to apply the behavior to specific scenes.
+	 *
+	 * @param sceneID         unique sceneID Integer
+	 * @param hideOnLostFocus true / false
+	 */
+	public static void setHideOnLostFocus(Integer sceneID, boolean hideOnLostFocus) {
+		if (sceneObjectMap.containsKey(sceneID)) {
+			sceneObjectMap.get(sceneID).setHiddenOnLostFocus(hideOnLostFocus);
+		}
+		else {warnNoScene("setHideOnLostFocus", sceneID);}
+	}
+
+	/**
+	 * Call sceneHiddenOnLostFocus to find out if Switcher is configured to
+	 * hide a specific scene when it loses focus.
+	 *
+	 * @param sceneID unique sceneID Integer
+	 * @return true/false or null if sceneID does not exist
+	 */
+	public static Boolean sceneHiddenOnLostFocus(Integer sceneID) {
+		if (sceneObjectMap.containsKey(sceneID)) {
+			return sceneObjectMap.get(sceneID).hideOnLostFocus();
+		}
+		else {warnNoScene("sceneHiddenOnLostFocus", sceneID);}
+		return null;
+	}
+
+	/**
+	 * Call allHiddenObLostFocus to find out if Switcher
+	 * is configured to hide ALL Scenes when they lose focus.
+	 *
+	 * @return true/false or null if sceneID does not exist
+	 */
+	public static Boolean allHiddenOnLostFocus() {return allHiddenOnLostFocus;}
+
+	/**
+	 * Call getWindow(sceneID) to quickly get the Window of the current
+	 * Scene on stage.
+	 *
+	 * @param sceneID unique sceneID Integer
+	 * @return Window of the current Scene
+	 */
+	public static Window getWindow(Integer sceneID) {
+		return Objects.requireNonNull(getScene(sceneID))
+					  .getWindow();
+	}
+
+	/**
+	 * @deprecated use hide(sceneID)
+	 */
+	public static void hide() {
+		Integer sceneID = showingSceneID;
+		if (stageMap.size() == 1) {
+			if (sceneID == null) {
+				sceneID = getSceneIDFromStageID(defaultStageID);
 			}
-			else { warnNoScene("showScene", sceneID); }
-		});
+			SceneObject scene = sceneObjectMap.get(sceneID);
+			scene.hideScene();
+		}
+	}
+
+	/**
+	 * use this method to hide a Scene when you have more than
+	 * one Stage set up in Switcher.
+	 *
+	 * @param sceneID Integer of your unique sceneID
+	 */
+	public static void hide(Integer sceneID) {
+		hideScene(sceneID);
+	}
+
+	/**
+	 * @deprecated use show(sceneID) or showScene(sceneID)
+	 */
+	public static void unHide() {
+		show();
+	}
+
+	/**
+	 * use this method to show a hidden Scene when you have
+	 * more than one Stage set up in Switcher
+	 *
+	 * @param sceneID Integer of your unique sceneID
+	 */
+	public static void unHide(Integer sceneID) {
+		show(sceneID);
+	}
+
+	/**
+	 * @return true if Scene is currently being shown on screen
+	 * @deprecated Use visible(stageID)
+	 */
+	public static boolean visible() {return Switcher.stageVisibleProperty.getValue();}
+
+	/**
+	 * Use visible(stageID) to find out if Switcher is currently showing any scene at all
+	 *
+	 * @return true if Scene is currently being shown on screen
+	 */
+	public static boolean visible(Integer sceneID) {
+		boolean response = false;
+		if (sceneObjectMap.containsKey(sceneID)) {
+			response = sceneObjectMap.get(sceneID).showing();
+		}
+		return response;
 	}
 
 	/**
 	 * use isShowing to find out if a particular scene is the one current being displayed on
 	 * the screen. This is different than using visible, since it will tell you if a specific
 	 * Scene is on the screen and not just whether the stage is visible or not.
+	 *
 	 * @param sceneID unique ID Integer
 	 * @return true if showing, false if not
 	 */
@@ -740,17 +797,19 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * Use getVisibleWithHistoryProperty to bind to a control that invokes the showLastScene method.
 	 * For example: myButton.visibleProperty.bind(Switcher.getVisibleWithHistoryProperty());
 	 * Your control will then be hidden when Switcher has no more scenes in its history to pull up.
+	 *
 	 * @return BooleanProperty
 	 */
-	public static BooleanProperty getVisibleWithHistoryProperty() { return visibleWithHistoryProperty; }
+	public static BooleanProperty getVisibleWithHistoryProperty() {return visibleWithHistoryProperty;}
 
 	/**
 	 * Use getEnabledWithHistoryProperty to bind to a control that invokes the showLastScene method.
 	 * For example: myButton.disableProperty().bind(Switcher.getEnabledWithHistoryProperty());
 	 * Your control will then be disabled when Switcher has no more scenes in its history to pull up.
+	 *
 	 * @return BooleanProperty
 	 */
-	public static BooleanProperty getEnabledWithHistoryProperty() { return enabledWithHistoryProperty; }
+	public static BooleanProperty getEnabledWithHistoryProperty() {return enabledWithHistoryProperty;}
 
 	/**
 	 * As your code invokes showScene to show the different Scenes that you have added into Switcher,
@@ -774,6 +833,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	 * situation where your currently showing scene is the first one shown,
 	 * but it offers the option of going back. Use this method to make sure
 	 * you can go back.
+	 *
 	 * @return true if there is a previous scene to go back to.
 	 */
 	public static boolean lastSceneAvailable() {
@@ -781,18 +841,18 @@ import java.util.concurrent.ThreadLocalRandom;
 	}
 
 	/**
-	 * @deprecated
-	 * Use runOnShown
 	 * @param sceneId ID of a Scene managed by Switcher
 	 * @param handler {@code EventHandler} to be invoked when Scene is shown
+	 * @deprecated Use runOnShown
 	 */
 	public static void setOnShown(Integer sceneId, EventHandler<Event> handler) {
-		runOnShown(sceneId,handler);
+		runOnShown(sceneId, handler);
 	}
 
 	/**
 	 * Registers an {@code EventHandler} on a Scene managed by Switcher.
 	 * When Switcher shows this scene, the {@code EventHandler} will be executed.
+	 *
 	 * @param sceneId ID of a Scene managed by Switcher
 	 * @param handler {@code EventHandler} to be invoked when Scene is shown
 	 */
@@ -805,6 +865,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	/**
 	 * Registers an {@code EventHandler} on a Scene managed by Switcher.
 	 * When Switcher hides this scene, the {@code EventHandler} will be executed.
+	 *
 	 * @param sceneId ID of a Scene managed by Switcher
 	 * @param handler {@code EventHandler} to be invoked when Scene is shown
 	 */
@@ -856,7 +917,7 @@ import java.util.concurrent.ThreadLocalRandom;
 		if (sceneObjectMap.containsKey(sceneID)) {
 			getSceneObject(sceneID).hideScene();
 		}
-		else { warnNoScene("hide(sceneID)", sceneID); }
+		else {warnNoScene("hide(sceneID)", sceneID);}
 	}
 
 	private static void showStage() {
@@ -874,13 +935,13 @@ import java.util.concurrent.ThreadLocalRandom;
 				getSceneObject(sceneID).showScene();
 			}
 			else {
-				showSceneObject(sceneID,NEW_SCENE);
+				showSceneObject(sceneID, NEW_SCENE);
 			}
 		}
-		else { warnNoScene("show(sceneID) or unHide(sceneID)", sceneID); }
+		else {warnNoScene("show(sceneID) or unHide(sceneID)", sceneID);}
 	}
 
-	private static SceneObject getSceneObject(Integer sceneID) { return sceneObjectMap.getOrDefault(sceneID, null);}
+	private static SceneObject getSceneObject(Integer sceneID) {return sceneObjectMap.getOrDefault(sceneID, null);}
 
 	private static void warnNoScene(String callingMethod, Integer sceneID) {
 		System.err.println("sceneID " + sceneID + " does not exist being called from method " + callingMethod);
@@ -895,8 +956,8 @@ import java.util.concurrent.ThreadLocalRandom;
 	}
 
 	private static Integer getRandom() {
-		int     min      = 1000000;
-		int     max      = 9999999;
+		int min = 1000000;
+		int max = 9999999;
 		Integer finalInt = ThreadLocalRandom.current()
 											.nextInt(min, max + 1);
 		while (randomInts.contains(finalInt) || stageMap.containsKey(finalInt)) {
@@ -918,13 +979,13 @@ import java.util.concurrent.ThreadLocalRandom;
 		if (Switcher.firstRun) {
 			if (!stageMap.containsKey(defaultStageID)) stageMap.put(defaultStageID, new Stage());
 			stageVisibleProperty.addListener((observable, oldValue, newValue) -> {
-				if (newValue) { showStage(); }
-				else { hideScene(); }
+				if (newValue) {showStage();}
+				else {hideScene();}
 			});
 			Switcher.firstRun = false;
 		}
-		if (parent == null) { sceneObjectMap.put(sceneID, new SceneObject(stageID, scene, width, height, allHiddenOnLostFocus)); }
-		else { sceneObjectMap.put(sceneID, new SceneObject(stageID, parent, width, height, allHiddenOnLostFocus)); }
+		if (parent == null) {sceneObjectMap.put(sceneID, new SceneObject(stageID, scene, width, height, allHiddenOnLostFocus));}
+		else {sceneObjectMap.put(sceneID, new SceneObject(stageID, parent, width, height, allHiddenOnLostFocus));}
 		sceneObjectMap.get(sceneID)
 					  .setHiddenOnLostFocus(allHiddenOnLostFocus);
 	}
@@ -962,45 +1023,50 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 class SceneObject extends Switcher {
 
+	private final Scene                   scene;
+	private       Integer                 stageID;
+	private       Double                  width;
+	private       Double                  height;
+	private       double                  stageX            = -1.0;
+	private       double                  stageY            = -1.0;
+	private       boolean                 customXY          = false;
+	private       boolean                 hideOnLostFocus;
+	private       boolean                 userHidden        = false;
+	private       boolean                 alreadyShown      = false;
+	private       boolean                 showing           = false;
+	private       EventHandler<Event>     showEvent;
+	private       EventHandler<Event>     hideEvent;
+	private final ChangeListener<Boolean> lostFocusListener = (observable, oldValue, newValue) -> {
+		if (!newValue) {
+			hideScene();
+		}
+	};
+
 	SceneObject(Integer stageID, Parent parent, Double width, Double height, boolean hideOnLostFocus) {
-		this.stageID = stageID;
-		this.width   = width;
-		this.height  = height;
-		this.scene   = new Scene(parent);
+		this.stageID         = stageID;
+		this.width           = width;
+		this.height          = height;
+		this.scene           = new Scene(parent);
 		this.hideOnLostFocus = hideOnLostFocus;
 	}
 
 	SceneObject(Integer stageID, Scene scene, Double width, Double height, boolean hideOnLostFocus) {
-		this.stageID = stageID;
-		this.width   = width;
-		this.height  = height;
-		this.scene   = scene;
+		this.stageID         = stageID;
+		this.width           = width;
+		this.height          = height;
+		this.scene           = scene;
 		this.hideOnLostFocus = hideOnLostFocus;
 	}
 
-	private       Integer stageID;
-	private final Scene   scene;
-	private       Double  width;
-	private       Double  height;
-	private       double  stageX     = -1.0;
-	private       double  stageY     = -1.0;
-	private       boolean customXY   = false;
-	private       boolean hideOnLostFocus;
-	private       boolean userHidden = false;
-	private		  boolean alreadyShown = false;
-	private		  boolean showing = false;
-	private 	  EventHandler<Event> showEvent;
-	private 	  EventHandler<Event> hideEvent;
+	public void setShowEvent(EventHandler<Event> showEvent) {this.showEvent = showEvent;}
 
-	public void setShowEvent(EventHandler<Event> showEvent) { this.showEvent = showEvent;}
+	public void setHideEvent(EventHandler<Event> hideEvent) {this.hideEvent = hideEvent;}
 
-	public void setHideEvent(EventHandler<Event> hideEvent) { this.hideEvent = hideEvent;}
+	public void clearAlreadyShown()                         {alreadyShown = false;}
 
-	public void clearAlreadyShown()                         { alreadyShown = false;}
+	public void setAlreadyShown()                           {alreadyShown = true;}
 
-	public void setAlreadyShown()                           { alreadyShown = true;}
-
-	public boolean hasAlreadyShown()                        { return alreadyShown;}
+	public boolean hasAlreadyShown()                        {return alreadyShown;}
 
 	public boolean hideOnLostFocus() {
 		return hideOnLostFocus;
@@ -1034,9 +1100,9 @@ class SceneObject extends Switcher {
 
 	public double getStageX()                 {return stageX;} // Returns the top left corner of stage as X coordinate
 
-	public double getStageY()                 {return stageY;} // Returns the top left corner of stage as Y coordinate
-
 	public void setStageX(Double stageX)      {this.stageX = stageX;}
+
+	public double getStageY()                 {return stageY;} // Returns the top left corner of stage as Y coordinate
 
 	public void setStageY(Double stageY)      {this.stageY = stageY;}
 
@@ -1051,7 +1117,7 @@ class SceneObject extends Switcher {
 	public void hideScene() {
 		Platform.runLater(() -> Objects.requireNonNull(Switcher.getStage(this.stageID)).hide());
 		this.userHidden = true;
-		this.showing = false;
+		this.showing    = false;
 		if (hideEvent != null) {
 			hideEvent.handle(new ActionEvent());
 		}
@@ -1069,8 +1135,8 @@ class SceneObject extends Switcher {
 			Objects.requireNonNull(Switcher.getStage(this.stageID)).requestFocus();
 		});
 		this.userHidden = false;
-		this.showing = true;
-		alreadyShown = true;
+		this.showing    = true;
+		alreadyShown    = true;
 		if (showEvent != null) {
 			showEvent.handle(new ActionEvent());
 		}
@@ -1078,13 +1144,7 @@ class SceneObject extends Switcher {
 
 	public boolean wasUserHidden() {return this.userHidden;}
 
-	public boolean showing() {return showing;}
-
-	private final ChangeListener<Boolean> lostFocusListener = (observable, oldValue, newValue) -> {
-		if (!newValue) {
-			hideScene();
-		}
-	};
+	public boolean showing()       {return showing;}
 
 }
 
@@ -1097,13 +1157,13 @@ class SceneObject extends Switcher {
  */
 class HistoryKeeper {
 
+	private final Map<Integer, Integer> pastSceneIDs = new HashMap<>();
+	private       Integer               lastSceneID  = null;
+	private       int                   index;
+
 	public HistoryKeeper() {
 		index = 0;
 	}
-
-	private       Integer               lastSceneID  = null;
-	private       int                   index;
-	private final Map<Integer, Integer> pastSceneIDs = new HashMap<>();
 
 	private void addLastSceneID() {
 		if (lastSceneID != null) {
