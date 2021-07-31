@@ -562,6 +562,18 @@ import java.util.concurrent.ThreadLocalRandom;
 	}
 
 	/**
+	 * setTitle Set the title for this scene and it will get applied to the stage when shown.
+	 *
+	 * @param sceneID Integer
+	 * @param title   String
+	 */
+	public static void setTitle(Integer sceneID, String title) {
+		if (sceneObjectMap.containsKey(sceneID)) {
+			sceneObjectMap.get(sceneID).setTitle(title);
+		}
+	}
+
+	/**
 	 * use getStage to gain access to any of the stages that you have
 	 * in Switcher so that you can configure any option of the stage
 	 * that is not offered with Switcher. if you pass null you will
@@ -1024,6 +1036,7 @@ import java.util.concurrent.ThreadLocalRandom;
 class SceneObject extends Switcher {
 
 	private final Scene                   scene;
+	private       String                  title             = "";
 	private       Integer                 stageID;
 	private       Double                  width;
 	private       Double                  height;
@@ -1058,6 +1071,15 @@ class SceneObject extends Switcher {
 		this.hideOnLostFocus = hideOnLostFocus;
 	}
 
+
+	public void setTitle(String title) {this.title = title;}
+
+	private Stage getStage()           {return Objects.requireNonNull(Switcher.getStage((this.stageID)));}
+
+	private void setStageTitle() {
+		if (!title.equals("")) getStage().setTitle(title);
+	}
+
 	public void setShowEvent(EventHandler<Event> showEvent) {this.showEvent = showEvent;}
 
 	public void setHideEvent(EventHandler<Event> hideEvent) {this.hideEvent = hideEvent;}
@@ -1076,10 +1098,10 @@ class SceneObject extends Switcher {
 		this.hideOnLostFocus = hideOnLostFocus;
 		if (Switcher.getStage(this.stageID) != null) {
 			if (hideOnLostFocus) {
-				Objects.requireNonNull(Switcher.getStage(this.stageID)).focusedProperty().addListener(lostFocusListener);
+				Objects.requireNonNull(getStage()).focusedProperty().addListener(lostFocusListener);
 			}
 			else {
-				Objects.requireNonNull(Switcher.getStage(this.stageID)).focusedProperty().removeListener(lostFocusListener);
+				Objects.requireNonNull(getStage()).focusedProperty().removeListener(lostFocusListener);
 			}
 		}
 	}
@@ -1124,15 +1146,16 @@ class SceneObject extends Switcher {
 	}
 
 	public void showScene() {
-		Objects.requireNonNull(Switcher.getStage(this.stageID)).setWidth(width);
-		Objects.requireNonNull(Switcher.getStage(this.stageID)).setHeight(height);
-		Objects.requireNonNull(Switcher.getStage(this.stageID)).setX(stageX);
-		Objects.requireNonNull(Switcher.getStage(this.stageID)).setY(stageY);
-		Objects.requireNonNull(Switcher.getStage(this.stageID)).setScene(scene);
+		getStage().setWidth(width);
+		getStage().setHeight(height);
+		getStage().setX(stageX);
+		getStage().setY(stageY);
+		getStage().setScene(scene);
+		setStageTitle();
 		Platform.runLater(() -> {
-			Objects.requireNonNull(Switcher.getStage(this.stageID)).show();
-			Objects.requireNonNull(Switcher.getStage(this.stageID)).toFront();
-			Objects.requireNonNull(Switcher.getStage(this.stageID)).requestFocus();
+			getStage().show();
+			getStage().toFront();
+			getStage().requestFocus();
 		});
 		this.userHidden = false;
 		this.showing    = true;
