@@ -6,10 +6,6 @@ line of code method to switch out scenes on the fly without all the messy code t
 with managing Scenes in JavaFX. You simply assign a unique sceneID (int) to your scene,
 and Switcher takes care of the rest!
 
-There are also three [completely runnable test applications](./src/test) under Test that
-show how to use Switcher from the most common and simple ways to the Lets Get Nuts ways
-which shows you how to implement different stages and assign them to your scenes and
-then with grace and style, you just show the scene with a single and simple line of code.<br><br>
 ---
 ### 1.3 Changes and Additions at the end of this document
 
